@@ -1,7 +1,6 @@
 "use client";
 
-export default function champImput() {
-  return (
-    <input name="nom" placeholder="Nom" className="px-2 py-1 rounded-sm" />
-  );
+
+export default function InputChamp() {
+  return <div className="space-y-8">Logo</div>
 }

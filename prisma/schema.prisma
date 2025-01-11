@@ -12,7 +12,7 @@ datasource db {
 
 model Plante {
   id String @id @default(cuid())
-  nom String @unique
+  nom String
   espece String
   famille String
   mois_plantation String 
