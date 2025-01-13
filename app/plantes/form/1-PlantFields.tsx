@@ -1,8 +1,7 @@
 import {
-  // FormCheckboxComponent,
   FormInputComponent,
   FormTextareaComponent,
-} from "./2-FieldComponent";
+} from "./2-FieldComponent copy";
 
 const FormPlantFields = () => {
   return (
@@ -12,24 +11,28 @@ const FormPlantFields = () => {
         label="Nom"
         placeholder="Nom de la plante"
         description="Compris entre 2 et 5 caractères"
+        type="input"
       />
       <FormInputComponent
         name="espece"
         label="Espèce"
         placeholder="Espèce de la plante"
         description=""
+        type="input"
       />
       <FormInputComponent
         name="famille"
         label="Famille"
         placeholder="Famille de la plante"
         description=""
+        type="input"
       />
       <FormInputComponent
         name="mois_plantation"
         label="Mois de plantation"
         placeholder="Mois de plantation"
         description=""
+        type="input"
       />
       {/* <FormCheckboxComponent
         name="moPlanting"
@@ -42,17 +45,20 @@ const FormPlantFields = () => {
         label="Mois de semis"
         placeholder="Mois de semis"
         description=""
+        type="input"
       />
       <FormInputComponent
         name="ensoleillement"
         label="Ensoleillement"
         placeholder="Ensoleillement"
         description=""
+        type="input"
       />
       <FormTextareaComponent
         name="notes"
         label="Notes"
         placeholder="Notes supplémentaires"
+        type="textarea"
       />
     </>
   );

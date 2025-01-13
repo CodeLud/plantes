@@ -5,6 +5,13 @@ export async function POST(request: Request) {
   try {
     const json = await request.json(); // Parser le corps de la requête
     console.log("Corps de la requête :", json);
+    //const validation = plantFormSchema.safeParse(json);
+
+    /*  if (!validation.success) {
+      return new Response(JSON.stringify({ error: "Données invalides" }), {
+        status: 400,
+      });
+    } */
 
     if (!json) {
       return NextResponse.json(

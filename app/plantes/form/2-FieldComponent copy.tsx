@@ -8,17 +8,19 @@ import { FormFieldComponentProps } from "./typesInterface"; // interface commune
 
 /* interface FormInputComponentProps {
   dans le fichier  FieldTextarea
+
 } */
 
-export const FormCheckboxComponent = ({
+/* export const FormCheckboxComponent = ({
   name,
   label,
-  // placeholder,
+  placeholder,
   description,
 }: FormFieldComponentProps) => {
   const { control } = useFormContext<plantFormData>(); // Utilisez useFormContext pour accéder à `control`
 
   return (
+    
     <FormField
       control={control}
       name={name}
@@ -30,7 +32,7 @@ export const FormCheckboxComponent = ({
     />
   );
 };
-
+ */
 export const FormInputComponent = ({
   name,
   label,
@@ -45,7 +47,7 @@ export const FormInputComponent = ({
       name={name}
       render={({ field }) => (
         <FormFieldWrapper label={label} description={description}>
-          <Input placeholder={placeholder} {...field} />
+          <Input placeholder={placeholder} {...field} className="py-8" />
         </FormFieldWrapper>
       )}
     />
@@ -69,7 +71,7 @@ export const FormTextareaComponent = ({
           <Textarea
             placeholder={placeholder}
             {...field}
-            className="resize-none"
+            className="resize-none peer h-full min-h-[400px] w-full "
           />
         </FormFieldWrapper>
       )}
