@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       nom,
       espece,
       famille,
-      mois_plantation,
+      mois_plantation, // Chaîne de caractères
       mois_semis,
       ensoleillement,
       notes,
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
         nom,
         espece,
         famille,
-        mois_plantation,
+        mois_plantation: mois_plantation || null, // Convertir en null si vide// Gérer le cas où c'est vide
         mois_semis,
         ensoleillement,
         notes,

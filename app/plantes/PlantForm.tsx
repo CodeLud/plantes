@@ -43,7 +43,7 @@ export default function PlantForm() {
       nom: "",
       espece: "",
       famille: "",
-      mois_plantation: [],
+      mois_plantation: [], // Tableau vide par défaut,
       // moPlanting: ["id", "label"],
       mois_semis: "",
       ensoleillement: "",
@@ -54,12 +54,12 @@ export default function PlantForm() {
   const onSubmit = async (values: plantFormData) => {
     console.log("Données du formulaire :", values);
     // Convertir le tableau des mois de plantation en une chaîne de caractères
-    const moisPlantationString = values.mois_plantation.join(", ");
+    const moisPlantationString = values.mois_plantation?.join(", ") || ""; // Chaîne vide si undefined ou tableau vide
 
     // Créer un nouvel objet avec les données formatées
     const formattedValues = {
       ...values,
-      mois_plantation: moisPlantationString,
+      mois_plantation: moisPlantationString || null, // Convertir en null si vide
     };
 
     console.log("Données formatées :", formattedValues);
@@ -184,11 +184,14 @@ export default function PlantForm() {
                             checked={field.value?.includes(item.id)}
                             onCheckedChange={(checked) => {
                               return checked
-                                ? field.onChange([...field.value, item.id])
+                                ? field.onChange([
+                                    ...(field.value ?? []),
+                                    item.id,
+                                  ]) // Utiliser l'opérateur de coalescence nulle
                                 : field.onChange(
                                     field.value?.filter(
                                       (value) => value !== item.id
-                                    )
+                                    ) ?? [] // Utiliser l'opérateur de coalescence nulle
                                   );
                             }}
                           />

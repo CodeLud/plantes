@@ -60,12 +60,12 @@ export const plantFormSchema = z.object({
     .max(5, { message: "Nom ne doit pas excéder 5 characters." }),
   espece: z.string().optional(),
   famille: z.string().optional(),
-  // mois_plantation: z.string().optional(),
-  mois_plantation: z
+  mois_plantation: z.array(z.string()).optional(), // Tableau optionnel
+  /* mois_plantation: z
     .array(z.string())
     .refine((value) => value.some((item) => item), {
       message: "Vous devez sélectionner au moins un élément.",
-    }),
+    }), */
   mois_semis: z.string().optional(),
   ensoleillement: z.string().optional(),
   notes: z.string().optional(), // Champ optionnel
