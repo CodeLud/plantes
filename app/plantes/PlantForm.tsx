@@ -1,10 +1,40 @@
 "use client";
 
 import { plantFormData, plantFormSchema } from "@/app/_schemas/plantForm";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FormProvider, useForm } from "react-hook-form";
-import FormPlantFields from "./form/1-PlantFields";
-import SubmitButton from "./form/SubmitButton";
+//import { Form, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
+//import FormPlantFields from "./form/1-PlantFields";
+//import SubmitButton from "./form/SubmitButton";
+
+// Données pour les cases à cocher
+const mois_plantation = [
+  {
+    id: "janvier",
+    label: "janv",
+  },
+  {
+    id: "fevrier",
+    label: "fév",
+  },
+  {
+    id: "mars",
+    label: "mars",
+  },
+] as const;
 
 export default function PlantForm() {
   const form = useForm<plantFormData>({
@@ -13,7 +43,7 @@ export default function PlantForm() {
       nom: "",
       espece: "",
       famille: "",
-      mois_plantation: "",
+      mois_plantation: [],
       // moPlanting: ["id", "label"],
       mois_semis: "",
       ensoleillement: "",
@@ -22,12 +52,23 @@ export default function PlantForm() {
   });
 
   const onSubmit = async (values: plantFormData) => {
-    console.log(values);
+    console.log("Données du formulaire :", values);
+    // Convertir le tableau des mois de plantation en une chaîne de caractères
+    const moisPlantationString = values.mois_plantation.join(", ");
+
+    // Créer un nouvel objet avec les données formatées
+    const formattedValues = {
+      ...values,
+      mois_plantation: moisPlantationString,
+    };
+
+    console.log("Données formatées :", formattedValues);
+
     try {
       const response = await fetch("/api/plantes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify(formattedValues),
       });
 
       if (response.ok) {
@@ -39,22 +80,183 @@ export default function PlantForm() {
       }
 
       if (!response.ok) throw new Error("Erreur lors de l'ajout du nom 1");
+      if (!response.ok) {
+        console.error(
+          "Erreur du serveur :",
+          response.status,
+          response.statusText
+        );
+        return;
+      }
     } catch (error) {
-      console.error("Erreur lors de l'envoi du formulaire :", error);
+      console.error("Erreur lors de l'envoi du formulaire PlantForm:", error);
     }
   };
 
   // mon formulaire
   return (
-    <FormProvider {...form}>
-      <h1 className="font-bold">Ajouter une nouvelle plante</h1>
+    <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="space-y-8 mb-7 2xl:w-auto w-2/3 inline-grid"
+        className="flex-col  space-y-8 border-2 p-4 w-2/3"
       >
-        <FormPlantFields />
-        <SubmitButton />
+        {/* Champ Nom */}
+        <FormField
+          control={form.control}
+          name="nom"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="Nom de la plante" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Champ Espèce */}
+        <FormField
+          control={form.control}
+          name="espece"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="Espèce de la plante" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Champ Famille */}
+        <FormField
+          control={form.control}
+          name="famille"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="Famille de la plante" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Champ Mois de plantation */}
+        {/*   <FormField
+          control={form.control}
+          name="mois_plantation"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="Mois de plantation" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        /> */}
+
+        {/* Cases à cocher */}
+        <FormField
+          control={form.control}
+          name="mois_plantation"
+          render={() => (
+            <FormItem>
+              <div className="mb-4">
+                <FormLabel className="text-base">Éléments à afficher</FormLabel>
+                <FormDescription>
+                  Sélectionnez les éléments que vous souhaitez afficher.
+                </FormDescription>
+              </div>
+              {mois_plantation.map((item) => (
+                <FormField
+                  key={item.id}
+                  control={form.control}
+                  name="mois_plantation"
+                  render={({ field }) => {
+                    return (
+                      <FormItem
+                        key={item.id}
+                        className="flex flex-row items-start space-x-3 space-y-0"
+                      >
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value?.includes(item.id)}
+                            onCheckedChange={(checked) => {
+                              return checked
+                                ? field.onChange([...field.value, item.id])
+                                : field.onChange(
+                                    field.value?.filter(
+                                      (value) => value !== item.id
+                                    )
+                                  );
+                            }}
+                          />
+                        </FormControl>
+                        <FormLabel className="text-sm font-normal">
+                          {item.label}
+                        </FormLabel>
+                      </FormItem>
+                    );
+                  }}
+                />
+              ))}
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Champ Mois de semis */}
+        <FormField
+          control={form.control}
+          name="mois_semis"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="Mois de semis" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Champ Ensoleillement */}
+        <FormField
+          control={form.control}
+          name="ensoleillement"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Input placeholder="Ensoleillement" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Champ Notes */}
+        <FormField
+          control={form.control}
+          name="notes"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <Textarea
+                  placeholder="Commentaire"
+                  className="resize-none min-h-72"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Bouton de soumission */}
+        <Button type="submit" className="w-full">
+          Ajouter la plante
+        </Button>
       </form>
-    </FormProvider>
+    </Form>
   );
 }

@@ -13,10 +13,10 @@ datasource db {
 model Plante {
   id String @id @default(cuid())
   nom String
-  espece String
-  famille String
-  mois_plantation String 
-  mois_semis String 
-  ensoleillement String
-  notes String
+  espece String?  // Optionnel
+  famille String?  // Optionnel
+  mois_plantation String?  // Optionnel 
+  mois_semis String?  // Optionnel 
+  ensoleillement String?  // Optionnel
+  notes String?  // Optionnel
 }

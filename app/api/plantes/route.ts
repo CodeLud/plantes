@@ -5,13 +5,6 @@ export async function POST(request: Request) {
   try {
     const json = await request.json(); // Parser le corps de la requête
     console.log("Corps de la requête :", json);
-    //const validation = plantFormSchema.safeParse(json);
-
-    /*  if (!validation.success) {
-      return new Response(JSON.stringify({ error: "Données invalides" }), {
-        status: 400,
-      });
-    } */
 
     if (!json) {
       return NextResponse.json(
@@ -31,6 +24,8 @@ export async function POST(request: Request) {
       notes,
     } = json;
 
+    //const plantData = plantFormSchema.parse(json); // Valider les données
+
     // Ajouter la plante dans la base de données
     const newPlant = await prisma.plante.create({
       data: {
@@ -43,25 +38,25 @@ export async function POST(request: Request) {
         notes,
       },
     });
+    /*  const newPlant = await prisma.plante.create({
+      data: {
+        nom,
+        espece,
+        famille,
+        mois_plantation,
+        mois_semis,
+        ensoleillement,
+        notes,
+      },
+    }); */
 
     // Renvoyer une réponse réussie
     return NextResponse.json(newPlant, { status: 201 });
   } catch (error) {
-    if (error instanceof Error) {
-      console.error("Erreur lors de l'ajout de la plante :", error.message);
-      return NextResponse.json(
-        {
-          error: "Une erreur s'est produite côté serveur",
-          details: error.message,
-        },
-        { status: 500 }
-      );
-    } else {
-      console.error("Erreur inconnue :", error);
-      return NextResponse.json(
-        { error: "Une erreur inconnue s'est produite côté serveur" },
-        { status: 500 }
-      );
-    }
+    console.error("Erreur lors de l'ajout de la plante :", error);
+    return NextResponse.json(
+      { error: "Une erreur s'est produite côté serveur" },
+      { status: 500 }
+    );
   }
 }
