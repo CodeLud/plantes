@@ -19,4 +19,5 @@ model Plante {
   mois_semis String?  // Optionnel 
   ensoleillement String?  // Optionnel
   notes String?  // Optionnel
+  imageUrl String?  // Nouveau champ pour stocker le chemin ou l'URL de l'image
 }

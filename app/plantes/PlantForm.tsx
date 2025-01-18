@@ -15,10 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-//import { Form, useForm } from "react-hook-form";
 import { useForm } from "react-hook-form";
-//import FormPlantFields from "./form/1-PlantFields";
-//import SubmitButton from "./form/SubmitButton";
+
 
 // Données pour les cases à cocher
 const mois_plantation = [
@@ -57,10 +55,7 @@ export default function PlantForm() {
     const moisPlantationString = values.mois_plantation?.join(", ") || ""; // Chaîne vide si undefined ou tableau vide
 
     // Créer un nouvel objet avec les données formatées
-    const formattedValues = {
-      ...values,
-      mois_plantation: moisPlantationString || null, // Convertir en null si vide
-    };
+    const formattedValues = { ...values, mois_plantation: moisPlantationString || null, };
 
     console.log("Données formatées :", formattedValues);
 
@@ -76,13 +71,13 @@ export default function PlantForm() {
         form.reset();
       } else {
         const errorData = await response.json();
-        console.error("Erreur :", errorData.error);
+        console.error("Erreur 2:", errorData.error);
       }
 
       if (!response.ok) throw new Error("Erreur lors de l'ajout du nom 1");
       if (!response.ok) {
         console.error(
-          "Erreur du serveur :",
+          "Erreur du serveur 3 :",
           response.status,
           response.statusText
         );
