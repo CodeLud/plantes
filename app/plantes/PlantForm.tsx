@@ -46,18 +46,39 @@ export default function PlantForm() {
       mois_semis: "",
       ensoleillement: "",
       notes: "",
+      imageUrl: undefined,
     },
   });
 
   const onSubmit = async (values: plantFormData) => {
     console.log("Données du formulaire :", values);
-    // Convertir le tableau des mois de plantation en une chaîne de caractères
+    // Convertie le tableau des mois de plantation en une chaîne de caractères.
     const moisPlantationString = values.mois_plantation?.join(", ") || ""; // Chaîne vide si undefined ou tableau vide
-
+  
     // Créer un nouvel objet avec les données formatées
     const formattedValues = { ...values, mois_plantation: moisPlantationString || null, };
 
     console.log("Données formatées :", formattedValues);
+
+    // Gestion des fichiers image :
+const formData = new FormData();
+formData.append("nom", formattedValues.nom);
+formData.append("espece", formattedValues.espece || ""); // Valeur par défaut si le champ est optionnel
+formData.append("famille", formattedValues.famille || ""); // Valeur par défaut si le champ est optionnel
+formData.append("mois_semis", formattedValues.mois_semis || ""); // Valeur par défaut si le champ est optionnel
+formData.append("ensoleillement", formattedValues.ensoleillement || ""); // Valeur par défaut si le champ est optionnel
+formData.append("mois_plantation", formattedValues.mois_plantation || ""); // Valeur par défaut si le champ est optionnel
+formData.append("notes", formattedValues.notes || ""); // Valeur par défaut si le champ est optionnel
+
+// Ajoute une image si elle existe
+if (values.imageUrl && values.imageUrl.length > 0) {
+  formData.append("imageUrl", values.imageUrl[0]);
+}
+
+// Vérifie le contenu de FormData par convertion de la valeur en objet JavaScript
+const formDataObject = Object.fromEntries(formData.entries());
+console.log("Données formData :", formDataObject);
+return;
 
     try {
       const response = await fetch("/api/plantes", {
@@ -243,6 +264,25 @@ export default function PlantForm() {
                   placeholder="Commentaire"
                   className="resize-none min-h-72"
                   {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Champ Image */}
+        <FormField
+          control={form.control}
+          name="imageUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Image de la plante</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => field.onChange(e.target.files)}
                 />
               </FormControl>
               <FormMessage />

@@ -69,6 +69,7 @@ export const plantFormSchema = z.object({
   mois_semis: z.string().optional(),
   ensoleillement: z.string().optional(),
   notes: z.string().optional(), // Champ optionnel
+  imageUrl: z.instanceof(FileList).optional(), // Champ image optionnel
 });
 
 export type plantFormData = z.infer<typeof plantFormSchema>;
