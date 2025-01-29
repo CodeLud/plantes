@@ -1,9 +1,19 @@
 import prisma from "@/lib/db";
+import fs from "fs";
 import { NextResponse } from "next/server";
+import path from "path";
+
+// Liste des types MIME autorisés
+const ALLOWED_MIME_TYPES = [
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+];
 
 export async function POST(request: Request) {
   try {
-    const json = await request.json(); // Parser le corps de la requête
+    /* const json = await request.json(); // Parser le corps de la requête
     console.log("Corps de la requête :", json);
 
     if (!json) {
@@ -11,10 +21,50 @@ export async function POST(request: Request) {
         { error: "Le corps de la requête est manquant ou invalide" },
         { status: 400 }
       );
+    } */
+    // Lire les données du formulaire
+    const formData = await request.formData();
+
+    // Extraire les champs textuels
+    const nom = formData.get("nom") as string;
+    const espece = formData.get("espece") as string | null;
+    const famille = formData.get("famille") as string | null;
+    const mois_semis = formData.get("mois_semis") as string | null;
+    const ensoleillement = formData.get("ensoleillement") as string | null;
+    const mois_plantation = formData.get("mois_plantation") as string | null;
+    const notes = formData.get("notes") as string | null;
+
+    // Extraire le fichier image
+    const imageFile = formData.get("imageUrl") as File | null;
+
+    // Stocker l'image sur le système de fichiers
+    let imageUrl = null;
+    if (imageFile) {
+      // Valider le type MIME du fichier
+      if (!ALLOWED_MIME_TYPES.includes(imageFile.type)) {
+        return NextResponse.json(
+          {
+            error:
+              "Type de fichier non autorisé. Seules les images sont acceptées.",
+          },
+          { status: 400 }
+        );
+      }
+
+      const uploadDir = path.join(process.cwd(), "public", "uploads");
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      const fileName = `${Date.now()}-${imageFile.name}`;
+      const filePath = path.join(uploadDir, fileName);
+      const fileBuffer = await imageFile.arrayBuffer();
+      fs.writeFileSync(filePath, Buffer.from(fileBuffer));
+      // imageUrl = `/uploads/${fileName}`; // Chemin relatif pour l'accès public
+      imageUrl = `${fileName}`;
     }
 
     // Valider les données (optionnel, avec Zod par exemple)
-    const {
+    /* const {
       nom,
       espece,
       famille,
@@ -22,7 +72,7 @@ export async function POST(request: Request) {
       mois_semis,
       ensoleillement,
       notes,
-    } = json;
+    } = json; */
 
     //const plantData = plantFormSchema.parse(json); // Valider les données
 
@@ -36,6 +86,7 @@ export async function POST(request: Request) {
         mois_semis,
         ensoleillement,
         notes,
+        imageUrl,
       },
     });
     /*  const newPlant = await prisma.plante.create({
