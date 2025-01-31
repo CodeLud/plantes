@@ -11,6 +11,8 @@ const ALLOWED_MIME_TYPES = [
   "image/webp",
 ];
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
 export async function POST(request: Request) {
   try {
     /* const json = await request.json(); // Parser le corps de la requête
@@ -46,6 +48,18 @@ export async function POST(request: Request) {
           {
             error:
               "Type de fichier non autorisé. Seules les images sont acceptées.",
+          },
+          { status: 400 }
+        );
+      }
+      // Afficher le poids du fichier dans la console
+      console.log(`Poids du fichier reçu : ${imageFile.size} bytes`);
+
+      if (imageFile.size > MAX_FILE_SIZE) {
+        return NextResponse.json(
+          {
+            error:
+              "Fichier trop volumineux. La taille maximale autorisée est de 5MB.",
           },
           { status: 400 }
         );
