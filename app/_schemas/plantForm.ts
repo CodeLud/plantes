@@ -80,13 +80,8 @@ export const plantFormSchema = z.object({
         // Si aucun fichier n'est sélectionné, la validation passe
         if (!fileList || fileList.length === 0) return true;
 
-        // Vérifier la taille de chaque fichier
-        for (let i = 0; i < fileList.length; i++) {
-          if (fileList[i].size > MAX_FILE_SIZE) {
-            return false; // La validation échoue si un fichier est trop volumineux
-          }
-        }
-        return true; // Tous les fichiers sont valides
+        // Vérifier que tous les fichiers respectent la taille maximale
+        return Array.from(fileList).every((file) => file.size <= MAX_FILE_SIZE);
       },
       {
         message: `La taille maximale autorisée pour un fichier est de ${

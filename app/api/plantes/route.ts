@@ -1,4 +1,6 @@
+import { MAX_FILE_SIZE } from "@/app/_constantes";
 import prisma from "@/lib/db";
+import { fileTypeFromBuffer } from "file-type";
 import fs from "fs";
 import { NextResponse } from "next/server";
 import path from "path";
@@ -10,8 +12,6 @@ const ALLOWED_MIME_TYPES = [
   "image/gif",
   "image/webp",
 ];
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export async function POST(request: Request) {
   try {
@@ -42,8 +42,11 @@ export async function POST(request: Request) {
     // Stocker l'image sur le système de fichiers
     let imageUrl = null;
     if (imageFile) {
+      const buffer = await imageFile.arrayBuffer();
+      const fileType = await fileTypeFromBuffer(buffer);
+
       // Valider le type MIME du fichier
-      if (!ALLOWED_MIME_TYPES.includes(imageFile.type)) {
+      if (!fileType || !ALLOWED_MIME_TYPES.includes(fileType.mime)) {
         return NextResponse.json(
           {
             error:
