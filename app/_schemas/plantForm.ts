@@ -55,6 +55,8 @@ import { z } from "zod";
 ] as const */
 /* validation Zod schema creation  */
 
+const FILENAME_REGEX = /^[a-zA-Z0-9_\-.]+$/; // Expression régulière pour valider le nom de fichier
+
 export const plantFormSchema = z.object({
   nom: z
     .string()
@@ -87,6 +89,21 @@ export const plantFormSchema = z.object({
         message: `La taille maximale autorisée pour un fichier est de ${
           MAX_FILE_SIZE / 1024 / 1024
         }MB.`,
+      }
+    )
+    .refine(
+      (fileList) => {
+        // Si aucun fichier n'est sélectionné, la validation passe
+        if (!fileList || fileList.length === 0) return true;
+
+        // Vérifier que tous les fichiers ont un nom valide
+        return Array.from(fileList).every((file) =>
+          FILENAME_REGEX.test(file.name)
+        );
+      },
+      {
+        message:
+          "Le nom du fichier ne peut contenir que des lettres, des chiffres, des tirets, des underscores et des points.",
       }
     ),
 });
