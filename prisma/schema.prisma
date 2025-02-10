@@ -19,5 +19,16 @@ model Plante {
   mois_semis String?  // Optionnel 
   ensoleillement String?  // Optionnel
   notes String?  // Optionnel
+  multiplications M_multiplication[] // Relation n-n
   imageUrl String?  // Nouveau champ pour stocker le chemin ou l'URL de l'image
+  
+}
+
+
+model M_multiplication {
+  id String @id @default(cuid())
+  methode String?
+  saison String?  // Optionnel
+  observation String?
+  plantes Plante[] // Relation n-n
 }

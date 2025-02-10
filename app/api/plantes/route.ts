@@ -15,15 +15,6 @@ const ALLOWED_MIME_TYPES = [
 
 export async function POST(request: Request) {
   try {
-    /* const json = await request.json(); // Parser le corps de la requête
-    console.log("Corps de la requête :", json);
-
-    if (!json) {
-      return NextResponse.json(
-        { error: "Le corps de la requête est manquant ou invalide" },
-        { status: 400 }
-      );
-    } */
     // Lire les données du formulaire
     const formData = await request.formData();
 
@@ -106,20 +97,24 @@ export async function POST(request: Request) {
         imageUrl,
       },
     });
-    /*  const newPlant = await prisma.plante.create({
+
+    // Créer une nouvelle entrée dans m_multiplication avec des valeurs par défaut
+    const nouvelleMultiplication = await prisma.m_multiplication.create({
       data: {
-        nom,
-        espece,
-        famille,
-        mois_plantation,
-        mois_semis,
-        ensoleillement,
-        notes,
+        methode: null,
+        saison: null,
+        observation: null,
+        plantes: {
+          connect: { id: newPlant.id }, // Relier à la nouvelle plante
+        },
       },
-    }); */
+    });
 
     // Renvoyer une réponse réussie
-    return NextResponse.json(newPlant, { status: 201 });
+    return NextResponse.json(
+      { plante: newPlant, multiplication: nouvelleMultiplication },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Erreur lors de l'ajout de la plante :", error);
     return NextResponse.json(

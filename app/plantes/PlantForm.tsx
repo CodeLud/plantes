@@ -182,9 +182,9 @@ export default function PlantForm() {
           render={() => (
             <FormItem>
               <div className="mb-4">
-                <FormLabel className="text-base">Éléments à afficher</FormLabel>
+                <FormLabel className="text-base">Mois de plantation</FormLabel>
                 <FormDescription>
-                  Sélectionnez les éléments que vous souhaitez afficher.
+                  Sélectionnez le(s) mois de plantation de la plante.
                 </FormDescription>
               </div>
               {mois_plantation.map((item) => (
