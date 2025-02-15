@@ -75,7 +75,7 @@ export const plantFormSchema = z.object({
   notes: z.string().optional(), // Champ optionnel
   //imageUrl: z.instanceof(FileList).optional(), // Champ image optionnel
   imageUrl: z
-    .instanceof(FileList)
+    .any(FileList)
     .optional()
     .refine(
       (fileList) => {

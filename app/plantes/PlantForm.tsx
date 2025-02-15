@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRef } from "react"; // <-- Ajouter ici
 import { useForm } from "react-hook-form";
 
 // Données pour les cases à cocher
@@ -48,6 +49,9 @@ export default function PlantForm() {
       imageUrl: undefined,
     },
   });
+
+  // 1. Ajouter une référence à l'input fichier
+const fileInputRef = useRef<HTMLInputElement>(null);
 
   const onSubmit = async (values: plantFormData) => {
     console.log("Données du formulaire :", values);
@@ -93,6 +97,12 @@ export default function PlantForm() {
       if (response.ok) {
         console.log("Plante ajoutée avec succès !");
         form.reset();
+      // Réinitialisation spécifique au champ fichier
+      form.resetField("imageUrl");
+      // Réinitialisation DOM via la ref
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
       } else {
         const errorData = await response.json();
         console.error("Erreur 2:", errorData.error);
@@ -285,6 +295,7 @@ export default function PlantForm() {
                 <Input
                   type="file"
                   accept="image/*"
+                  ref={fileInputRef}
                   onChange={(e) => field.onChange(e.target.files)}
                 />
               </FormControl>
