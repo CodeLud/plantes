@@ -15,7 +15,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRef } from "react"; // <-- Ajouter ici
+import { Mic } from "lucide-react";
+import { useRef, useState } from "react"; // <-- Ajouter ici
 import { useForm } from "react-hook-form";
 
 // Données pour les cases à cocher
@@ -50,8 +51,57 @@ export default function PlantForm() {
     },
   });
 
+  //  Web Speech API
+  const [reconnaissanceActive, setReconnaissanceActive] = useState(false);
+  const [champActif, setChampActif] = useState<"nom" | "espece" | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const demarrerReconnaissanceVocale = async (champ: "nom" | "espece") => {
+    if (!("webkitSpeechRecognition" in window)) {
+      alert(
+        "La reconnaissance vocale n'est pas supportée par votre navigateur"
+      );
+      return;
+    }
+
+    setChampActif(champ);
+    setReconnaissanceActive(true);
+
+    const recognition = new webkitSpeechRecognition();
+    recognition.lang = "fr-FR";
+    recognition.interimResults = true;
+    recognition.continuous = true;
+    /* recognition.maxResults = 10;
+    recognition.interimResults = true; */
+
+    recognition.onresult = (event) => {
+      const resultat = event.results[event.resultIndex][0]?.transcript;
+      if (resultat) {
+        form.setValue(champ, resultat);
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error("Erreur de reconnaissance:", event.error);
+      setReconnaissanceActive(false);
+    };
+
+    recognition.onend = () => {
+      setReconnaissanceActive(false);
+      setChampActif(null);
+    };
+
+    recognition.start();
+  };
+
+  const arreterReconnaissanceVocale = () => {
+    setReconnaissanceActive(false);
+    setChampActif(null);
+  };
+  // Fin de modif Web Speech API
+
   // 1. Ajouter une référence à l'input fichier
-const fileInputRef = useRef<HTMLInputElement>(null);
+  // const fileInputRef = useRef<HTMLInputElement>(null);
 
   const onSubmit = async (values: plantFormData) => {
     console.log("Données du formulaire :", values);
@@ -97,12 +147,12 @@ const fileInputRef = useRef<HTMLInputElement>(null);
       if (response.ok) {
         console.log("Plante ajoutée avec succès !");
         form.reset();
-      // Réinitialisation spécifique au champ fichier
-      form.resetField("imageUrl");
-      // Réinitialisation DOM via la ref
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+        // Réinitialisation spécifique au champ fichier
+        form.resetField("imageUrl");
+        // Réinitialisation DOM via la ref
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
       } else {
         const errorData = await response.json();
         console.error("Erreur 2:", errorData.error);
@@ -130,13 +180,54 @@ const fileInputRef = useRef<HTMLInputElement>(null);
         className="flex-col  space-y-8 border-2 p-4 w-2/3"
       >
         {/* Champ Nom */}
-        <FormField
+        {/*  <FormField
           control={form.control}
           name="nom"
           render={({ field }) => (
             <FormItem>
               <FormControl>
                 <Input placeholder="Nom de la plante" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        /> */}
+
+        <FormField
+          control={form.control}
+          name="nom"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <div className="relative">
+                  <Input
+                    {...field}
+                    placeholder="Nom de la plante"
+                    readOnly={champActif === "nom"}
+                    className={`w-full ${
+                      champActif === "nom" ? "cursor-not-allowed bg-muted" : ""
+                    }`}
+                  />
+                  {champActif === "nom" ? (
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={arreterReconnaissanceVocale}
+                    >
+                      <Mic className="text-white" />
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={() => demarrerReconnaissanceVocale("nom")}
+                    >
+                      <Mic />
+                    </Button>
+                  )}
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -305,7 +396,12 @@ const fileInputRef = useRef<HTMLInputElement>(null);
         />
 
         {/* Bouton de soumission */}
-        <Button type="submit" className="w-full">
+        {/* <Button type="submit" className="w-full"> */}
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={reconnaissanceActive}
+        >
           Ajouter la plante
         </Button>
       </form>
