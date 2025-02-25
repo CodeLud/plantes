@@ -1,5 +1,6 @@
 "use client";
 
+import { mois_plantation } from "@/app/_methodes/function";
 import { plantFormData, plantFormSchema } from "@/app/_schemas/plantForm";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -19,22 +20,6 @@ import { Mic } from "lucide-react";
 import { useRef, useState } from "react"; // <-- Ajouter ici
 import { useForm } from "react-hook-form";
 
-// Données pour les cases à cocher
-const mois_plantation = [
-  {
-    id: "janvier",
-    label: "janv",
-  },
-  {
-    id: "fevrier",
-    label: "fév",
-  },
-  {
-    id: "mars",
-    label: "mars",
-  },
-] as const;
-
 export default function PlantForm() {
   const form = useForm<plantFormData>({
     resolver: zodResolver(plantFormSchema),
@@ -53,7 +38,11 @@ export default function PlantForm() {
 
   //  Web Speech API
   const [reconnaissanceActive, setReconnaissanceActive] = useState(false);
-  //const [isListeningNotes, setIsListeningNotes] = useState(false);
+  // Ajout deux nouveaux états
+  const [reconnaissanceContinueActive, setReconnaissanceContinueActive] =
+    useState(false);
+  const [recognitionInstance, setRecognitionInstance] =
+    useState<SpeechRecognition | null>(null);
 
   const [champActif, setChampActif] = useState<
     "nom" | "espece" | "famille" | "notes" | null
@@ -61,7 +50,7 @@ export default function PlantForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const demarrerReconnaissanceVocale = async (
-    champ: "nom" | "espece" | "famille" | "notes"
+    champ: "nom" | "espece" | "famille"
   ) => {
     if (!("webkitSpeechRecognition" in window)) {
       alert(
@@ -97,8 +86,42 @@ export default function PlantForm() {
     setReconnaissanceActive(true);
     setChampActif(champ);
   };
+  // fin de la fonction demarrerReconnaissanceVocale
 
-  const arreterReconnaissanceVocale = () => {
+  // Nouvelle fonction pour la dictée continue du Textarea
+  const demarrerReconnaissanceVocaleContinue = () => {
+    if (!("webkitSpeechRecognition" in window)) {
+      alert(
+        "La reconnaissance vocale n'est pas supportée par votre navigateur"
+      );
+      return;
+    }
+
+    const recognition = new (window.SpeechRecognition ||
+      window.webkitSpeechRecognition)();
+    recognition.lang = "fr-FR";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results)
+        .map((result) => result[0].transcript)
+        .join(" ");
+      form.setValue("notes", transcript);
+    };
+
+    recognition.onend = () => {
+      setReconnaissanceContinueActive(false);
+      setChampActif(null);
+    };
+
+    recognition.start();
+    setReconnaissanceContinueActive(true);
+    setChampActif("notes");
+    setRecognitionInstance(recognition);
+  };
+
+  /*  const arreterReconnaissanceVocale = () => {
     if (window.SpeechRecognition || window.webkitSpeechRecognition) {
       const recognition = new (window.SpeechRecognition ||
         window.webkitSpeechRecognition)();
@@ -109,7 +132,19 @@ export default function PlantForm() {
     setChampActif(null);
 
     form.trigger(); // Déclenche la validation après la saisie vocale
+  }; */
+
+  // Fonction modifiée pour arrêter la reconnaissance
+  const arreterReconnaissanceVocale = () => {
+    if (recognitionInstance) {
+      recognitionInstance.stop();
+    }
+    setReconnaissanceActive(false);
+    setReconnaissanceContinueActive(false);
+    setChampActif(null);
+    setRecognitionInstance(null);
   };
+
   // Fin de modif Web Speech API
 
   // 1. Ajouter une référence à l'input fichier
@@ -341,18 +376,6 @@ export default function PlantForm() {
         />
 
         {/* Champ Mois de plantation */}
-        {/*   <FormField
-          control={form.control}
-          name="mois_plantation"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Input placeholder="Mois de plantation" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
 
         {/* Cases à cocher */}
         <FormField
@@ -444,18 +467,15 @@ export default function PlantForm() {
               <FormControl>
                 <div className="relative">
                   <Textarea
-                    placeholder="Commentaire"
-                    //className="resize-none min-h-72 pr-10" // Ajout de padding à droite
                     {...field}
-                    readOnly={champActif === "notes"}
+                    placeholder="Commentaire"
                     className={`resize-none min-h-72 pr-10 ${
-                      champActif === "notes"
-                        ? "cursor-not-allowed bg-muted"
-                        : ""
+                      reconnaissanceContinueActive ? "bg-muted" : ""
                     }`}
+                    readOnly={reconnaissanceContinueActive}
                   />
                   <div className="absolute right-2 bottom-2">
-                    {champActif === "notes" ? (
+                    {reconnaissanceContinueActive ? (
                       <Button
                         type="button"
                         variant="destructive"
@@ -469,7 +489,7 @@ export default function PlantForm() {
                         type="button"
                         variant="outline"
                         size="icon"
-                        onClick={() => demarrerReconnaissanceVocale("notes")}
+                        onClick={demarrerReconnaissanceVocaleContinue}
                       >
                         <Mic className="h-4 w-4" />
                       </Button>
