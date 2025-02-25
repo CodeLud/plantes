@@ -53,10 +53,16 @@ export default function PlantForm() {
 
   //  Web Speech API
   const [reconnaissanceActive, setReconnaissanceActive] = useState(false);
-  const [champActif, setChampActif] = useState<"nom" | "espece" | null>(null);
+  //const [isListeningNotes, setIsListeningNotes] = useState(false);
+
+  const [champActif, setChampActif] = useState<
+    "nom" | "espece" | "famille" | "notes" | null
+  >(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const demarrerReconnaissanceVocale = async (champ: "nom" | "espece") => {
+  const demarrerReconnaissanceVocale = async (
+    champ: "nom" | "espece" | "famille" | "notes"
+  ) => {
     if (!("webkitSpeechRecognition" in window)) {
       alert(
         "La reconnaissance vocale n'est pas supportée par votre navigateur"
@@ -67,23 +73,19 @@ export default function PlantForm() {
     setChampActif(champ);
     setReconnaissanceActive(true);
 
-    const recognition = new webkitSpeechRecognition();
+    if (reconnaissanceActive) return;
+
+    const recognition = new (window.SpeechRecognition ||
+      window.webkitSpeechRecognition)();
     recognition.lang = "fr-FR";
-    recognition.interimResults = true;
-    recognition.continuous = true;
-    /* recognition.maxResults = 10;
-    recognition.interimResults = true; */
+    recognition.continuous = false;
+    recognition.interimResults = false;
 
     recognition.onresult = (event) => {
-      const resultat = event.results[event.resultIndex][0]?.transcript;
+      const resultat = event.results[0][0]?.transcript;
       if (resultat) {
-        form.setValue(champ, resultat);
+        form.setValue(champ, resultat, { shouldValidate: true });
       }
-    };
-
-    recognition.onerror = (event) => {
-      console.error("Erreur de reconnaissance:", event.error);
-      setReconnaissanceActive(false);
     };
 
     recognition.onend = () => {
@@ -92,11 +94,21 @@ export default function PlantForm() {
     };
 
     recognition.start();
+    setReconnaissanceActive(true);
+    setChampActif(champ);
   };
 
   const arreterReconnaissanceVocale = () => {
+    if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+      const recognition = new (window.SpeechRecognition ||
+        window.webkitSpeechRecognition)();
+      recognition.stop();
+    }
+
     setReconnaissanceActive(false);
     setChampActif(null);
+
+    form.trigger(); // Déclenche la validation après la saisie vocale
   };
   // Fin de modif Web Speech API
 
@@ -210,6 +222,7 @@ export default function PlantForm() {
                   />
                   {champActif === "nom" ? (
                     <Button
+                      type="button"
                       variant="destructive"
                       size="icon"
                       className="absolute right-2 top-1/2 -translate-y-1/2"
@@ -219,6 +232,7 @@ export default function PlantForm() {
                     </Button>
                   ) : (
                     <Button
+                      type="button"
                       variant="outline"
                       size="icon"
                       className="absolute right-2 top-1/2 -translate-y-1/2"
@@ -241,7 +255,39 @@ export default function PlantForm() {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="Espèce de la plante" {...field} />
+                <div className="relative">
+                  <Input
+                    placeholder="Espèce de la plante"
+                    {...field}
+                    readOnly={champActif === "espece"}
+                    className={`w-full ${
+                      champActif === "espece"
+                        ? "cursor-not-allowed bg-muted"
+                        : ""
+                    }`}
+                  />
+                  {champActif === "espece" ? (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={arreterReconnaissanceVocale}
+                    >
+                      <Mic className="text-white" />
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={() => demarrerReconnaissanceVocale("espece")}
+                    >
+                      <Mic />
+                    </Button>
+                  )}
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -255,7 +301,39 @@ export default function PlantForm() {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Input placeholder="Famille de la plante" {...field} />
+                <div className="relative">
+                  <Input
+                    placeholder="Famille de la plante"
+                    {...field}
+                    readOnly={champActif === "famille"}
+                    className={`w-full ${
+                      champActif === "famille"
+                        ? "cursor-not-allowed bg-muted"
+                        : ""
+                    }`}
+                  />
+                  {champActif === "famille" ? (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={arreterReconnaissanceVocale}
+                    >
+                      <Mic className="text-white" />
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={() => demarrerReconnaissanceVocale("famille")}
+                    >
+                      <Mic />
+                    </Button>
+                  )}
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -364,11 +442,40 @@ export default function PlantForm() {
           render={({ field }) => (
             <FormItem>
               <FormControl>
-                <Textarea
-                  placeholder="Commentaire"
-                  className="resize-none min-h-72"
-                  {...field}
-                />
+                <div className="relative">
+                  <Textarea
+                    placeholder="Commentaire"
+                    //className="resize-none min-h-72 pr-10" // Ajout de padding à droite
+                    {...field}
+                    readOnly={champActif === "notes"}
+                    className={`resize-none min-h-72 pr-10 ${
+                      champActif === "notes"
+                        ? "cursor-not-allowed bg-muted"
+                        : ""
+                    }`}
+                  />
+                  <div className="absolute right-2 bottom-2">
+                    {champActif === "notes" ? (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        onClick={arreterReconnaissanceVocale}
+                      >
+                        <Mic className="h-4 w-4 text-white" />
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => demarrerReconnaissanceVocale("notes")}
+                      >
+                        <Mic className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -401,6 +508,10 @@ export default function PlantForm() {
           type="submit"
           className="w-full"
           disabled={reconnaissanceActive}
+          /*  onClick={form.handleSubmit((data) => {
+            console.log("Soumission des données:", data);
+            // Ajoutez ici votre logique de soumission
+          })} */
         >
           Ajouter la plante
         </Button>
