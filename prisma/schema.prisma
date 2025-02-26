@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,24 +8,22 @@ datasource db {
 }
 
 model Plante {
-  id String @id @default(cuid())
-  nom String
-  espece String?  // Optionnel
-  famille String?  // Optionnel
-  mois_plantation String?  // Optionnel 
-  mois_semis String?  // Optionnel 
-  ensoleillement String?  // Optionnel
-  notes String?  // Optionnel
-  multiplications M_multiplication[] // Relation n-n
-  imageUrl String?  // Nouveau champ pour stocker le chemin ou l'URL de l'image
-  
+  id              String             @id @default(cuid())
+  nom             String
+  espece          String?
+  famille         String?
+  mois_plantation String?
+  mois_semis      String?
+  ensoleillement  String?
+  notes           String?
+  imageUrl        String?
+  multiplications M_multiplication[] @relation("M_multiplicationToPlante")
 }
 
-
 model M_multiplication {
-  id String @id @default(cuid())
-  methode String?
-  saison String?  // Optionnel
+  id          String   @id @default(cuid())
+  methode     String?
+  saison      String?
   observation String?
-  plantes Plante[] // Relation n-n
+  plantes     Plante[] @relation("M_multiplicationToPlante")
 }
