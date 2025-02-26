@@ -21,6 +21,8 @@ model Plante {
   notes String?  // Optionnel
   multiplications M_multiplication[] // Relation n-n
   imageUrl String?  // Nouveau champ pour stocker le chemin ou l'URL de l'image
+  createdAt DateTime @default(now()) // Date de création automatique
+  updatedAt DateTime @default(now()) @updatedAt // Date de mise à jour automatique
   
 }
 
