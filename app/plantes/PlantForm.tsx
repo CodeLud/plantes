@@ -3,7 +3,6 @@
 import { mois_plantation } from "@/app/_methodes/function";
 import { plantFormData, plantFormSchema } from "@/app/_schemas/plantForm";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -29,7 +28,8 @@ export default function PlantForm() {
       famille: "",
       mois_plantation: [], // Tableau vide par défaut,
       // moPlanting: ["id", "label"],
-      mois_semis: "",
+      // mois_semis: "",
+      mois_semis: [], // Tableau vide par défaut,
       ensoleillement: "",
       notes: "",
       imageUrl: undefined,
@@ -152,13 +152,16 @@ export default function PlantForm() {
 
   const onSubmit = async (values: plantFormData) => {
     console.log("Données du formulaire :", values);
+
     // Convertie le tableau des mois de plantation en une chaîne de caractères.
     const moisPlantationString = values.mois_plantation?.join(", ") || ""; // Chaîne vide si undefined ou tableau vide
+    const moisSemisString = values.mois_semis?.join(", ") || "";
 
     // Créer un nouvel objet avec les données formatées
     const formattedValues = {
       ...values,
       mois_plantation: moisPlantationString || null,
+      mois_semis: moisSemisString || null,
     };
 
     console.log("Données formatées :", formattedValues);
@@ -186,8 +189,6 @@ export default function PlantForm() {
     try {
       const response = await fetch("/api/plantes", {
         method: "POST",
-        /* headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formattedValues), */
         body: formData,
       });
 
@@ -227,19 +228,6 @@ export default function PlantForm() {
         className="flex-col  space-y-8 border-2 p-4 w-2/3"
       >
         {/* Champ Nom */}
-        {/*  <FormField
-          control={form.control}
-          name="nom"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <Input placeholder="Nom de la plante" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
-
         <FormField
           control={form.control}
           name="nom"
@@ -375,9 +363,7 @@ export default function PlantForm() {
           )}
         />
 
-        {/* Champ Mois de plantation */}
-
-        {/* Cases à cocher */}
+        {/* Mois de plantation */}
         <FormField
           control={form.control}
           name="mois_plantation"
@@ -389,42 +375,45 @@ export default function PlantForm() {
                   Sélectionnez le(s) mois de plantation de la plante.
                 </FormDescription>
               </div>
-              {mois_plantation.map((item) => (
-                <FormField
-                  key={item.id}
-                  control={form.control}
-                  name="mois_plantation"
-                  render={({ field }) => {
-                    return (
-                      <FormItem
-                        key={item.id}
-                        className="flex flex-row items-start space-x-3 space-y-0"
-                      >
-                        <FormControl>
-                          <Checkbox
-                            checked={field.value?.includes(item.id)}
-                            onCheckedChange={(checked) => {
-                              return checked
-                                ? field.onChange([
-                                    ...(field.value ?? []),
-                                    item.id,
-                                  ]) // Utiliser l'opérateur de coalescence nulle
-                                : field.onChange(
-                                    field.value?.filter(
-                                      (value) => value !== item.id
-                                    ) ?? [] // Utiliser l'opérateur de coalescence nulle
-                                  );
-                            }}
-                          />
-                        </FormControl>
-                        <FormLabel className="text-sm font-normal">
-                          {item.label}
-                        </FormLabel>
-                      </FormItem>
-                    );
-                  }}
-                />
-              ))}
+              {/* Conteneur principal pour les checkboxes */}
+              <div className="flex flex-wrap gap-4">
+                {mois_plantation.map((item) => (
+                  <FormField
+                    key={item.id}
+                    control={form.control}
+                    name="mois_plantation"
+                    render={({ field }) => {
+                      const isChecked = field.value?.includes(item.id);
+
+                      return (
+                        <FormItem
+                          key={item.id}
+                          className={`cursor-pointer rounded-md px-4 py-2 transition-colors duration-300 ${
+                            isChecked
+                              ? "bg-blue-500 text-white"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                          onClick={() => {
+                            if (isChecked) {
+                              field.onChange(
+                                field.value?.filter(
+                                  (value) => value !== item.id
+                                ) ?? []
+                              );
+                            } else {
+                              field.onChange([...(field.value ?? []), item.id]);
+                            }
+                          }}
+                        >
+                          <FormLabel className="text-sm font-normal">
+                            {item.label}
+                          </FormLabel>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                ))}
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -434,11 +423,53 @@ export default function PlantForm() {
         <FormField
           control={form.control}
           name="mois_semis"
-          render={({ field }) => (
+          render={() => (
             <FormItem>
-              <FormControl>
-                <Input placeholder="Mois de semis" {...field} />
-              </FormControl>
+              <div className="mb-4">
+                <FormLabel className="text-base">Mois de semis</FormLabel>
+                <FormDescription>
+                  Sélectionnez le(s) mois de semis de la plante.
+                </FormDescription>
+              </div>
+              {/* Conteneur principal pour les checkboxes */}
+              <div className="flex flex-wrap gap-4">
+                {mois_plantation.map((item) => (
+                  <FormField
+                    key={item.id}
+                    control={form.control}
+                    name="mois_semis"
+                    render={({ field }) => {
+                      const isChecked = field.value?.includes(item.id);
+
+                      return (
+                        <FormItem
+                          key={item.id}
+                          className={`cursor-pointer rounded-md px-4 py-2 transition-colors duration-300 ${
+                            isChecked
+                              ? "bg-primary text-white"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                          onClick={() => {
+                            if (isChecked) {
+                              field.onChange(
+                                field.value?.filter(
+                                  (value) => value !== item.id
+                                ) ?? []
+                              );
+                            } else {
+                              field.onChange([...(field.value ?? []), item.id]);
+                            }
+                          }}
+                        >
+                          <FormLabel className="text-sm font-normal">
+                            {item.label}
+                          </FormLabel>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                ))}
+              </div>
               <FormMessage />
             </FormItem>
           )}
@@ -468,7 +499,7 @@ export default function PlantForm() {
                 <div className="relative">
                   <Textarea
                     {...field}
-                    placeholder="Commentaire"
+                    placeholder="1) Cliquer sur l'icone microphone. 2) Dicter votre texte. 3) Recliquer sur l'icone pour valider votre commentaire."
                     className={`resize-none min-h-72 pr-10 ${
                       reconnaissanceContinueActive ? "bg-muted" : ""
                     }`}
@@ -528,10 +559,6 @@ export default function PlantForm() {
           type="submit"
           className="w-full"
           disabled={reconnaissanceActive}
-          /*  onClick={form.handleSubmit((data) => {
-            console.log("Soumission des données:", data);
-            // Ajoutez ici votre logique de soumission
-          })} */
         >
           Ajouter la plante
         </Button>
