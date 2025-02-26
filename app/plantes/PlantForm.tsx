@@ -227,7 +227,7 @@ export default function PlantForm() {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex-col  space-y-8 border-2 p-4 w-2/3"
+        className="flex-col  space-y-8 border-2 p-4"
       >
         {/* Champ Nom */}
         <FormField
@@ -241,11 +241,12 @@ export default function PlantForm() {
                     {...field}
                     placeholder="Nom de la plante"
                     readOnly={champActif === "nom"}
-                    className={`w-full ${
+                    className={`w-full px-4 py-2 text-base sm:text-lg border rounded-md ${
                       champActif === "nom" ? "cursor-not-allowed bg-muted" : ""
                     }`}
                   />
                   {champActif === "nom" ? (
+                    // Bouton pour arrêter la reconnaissance vocale
                     <Button
                       type="button"
                       variant="destructive"
@@ -253,9 +254,11 @@ export default function PlantForm() {
                       className="absolute right-2 top-1/2 -translate-y-1/2"
                       onClick={arreterReconnaissanceVocale}
                     >
-                      <Mic className="text-white" />
+                      <Mic className="text-white animate-pulse" />{" "}
+                      {/* Animation pour indiquer l'activité */}
                     </Button>
                   ) : (
+                    // Bouton pour démarrer la reconnaissance vocale
                     <Button
                       type="button"
                       variant="outline"
@@ -285,13 +288,14 @@ export default function PlantForm() {
                     placeholder="Espèce de la plante"
                     {...field}
                     readOnly={champActif === "espece"}
-                    className={`w-full ${
+                    className={`w-full px-4 py-2 text-base sm:text-lg border rounded-md ${
                       champActif === "espece"
                         ? "cursor-not-allowed bg-muted"
                         : ""
                     }`}
                   />
                   {champActif === "espece" ? (
+                    // Bouton pour arrêter la reconnaissance vocale
                     <Button
                       type="button"
                       variant="destructive"
@@ -299,9 +303,11 @@ export default function PlantForm() {
                       className="absolute right-2 top-1/2 -translate-y-1/2"
                       onClick={arreterReconnaissanceVocale}
                     >
-                      <Mic className="text-white" />
+                      <Mic className="text-white animate-pulse" />{" "}
+                      {/* Animation pour indiquer l'activité */}
                     </Button>
                   ) : (
+                    // Bouton pour démarrer la reconnaissance vocale
                     <Button
                       type="button"
                       variant="outline"
@@ -331,13 +337,14 @@ export default function PlantForm() {
                     placeholder="Famille de la plante"
                     {...field}
                     readOnly={champActif === "famille"}
-                    className={`w-full ${
+                    className={`w-full px-4 py-2 text-base sm:text-lg border rounded-md ${
                       champActif === "famille"
                         ? "cursor-not-allowed bg-muted"
                         : ""
                     }`}
                   />
                   {champActif === "famille" ? (
+                    // Bouton pour arrêter la reconnaissance vocale
                     <Button
                       type="button"
                       variant="destructive"
@@ -345,9 +352,11 @@ export default function PlantForm() {
                       className="absolute right-2 top-1/2 -translate-y-1/2"
                       onClick={arreterReconnaissanceVocale}
                     >
-                      <Mic className="text-white" />
+                      <Mic className="text-white animate-pulse" />{" "}
+                      {/* Animation pour indiquer l'activité */}
                     </Button>
                   ) : (
+                    // Bouton pour démarrer la reconnaissance vocale
                     <Button
                       type="button"
                       variant="outline"
@@ -448,7 +457,7 @@ export default function PlantForm() {
                           key={item.id}
                           className={`cursor-pointer rounded-md px-4 py-2 transition-colors duration-300 ${
                             isChecked
-                              ? "bg-chart-1 text-white"
+                              ? "bg-primary text-white"
                               : "bg-gray-100 text-gray-800"
                           }`}
                           onClick={() => {
@@ -502,7 +511,7 @@ export default function PlantForm() {
                           key={item.id}
                           className={`cursor-pointer rounded-md px-4 py-2 transition-colors duration-300 ${
                             isChecked
-                              ? "bg-chart-5 text-white"
+                              ? "bg-primary text-white"
                               : "bg-gray-100 text-gray-800"
                           }`}
                           onClick={() => {
@@ -555,7 +564,9 @@ export default function PlantForm() {
                         size="icon"
                         onClick={arreterReconnaissanceVocale}
                       >
-                        <Mic className="h-4 w-4 text-white" />
+                        {/* <Mic className="h-4 w-4 text-white" /> */}
+                        <Mic className="text-white animate-pulse" />{" "}
+                        {/* Animation pour indiquer l'activité */}
                       </Button>
                     ) : (
                       <Button
@@ -581,7 +592,7 @@ export default function PlantForm() {
           name="imageUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Image de la plante</FormLabel>
+              <FormLabel>Téléchager un Image ? </FormLabel>
               <FormControl>
                 <Input
                   type="file"
@@ -597,13 +608,18 @@ export default function PlantForm() {
 
         {/* Bouton de soumission */}
         {/* <Button type="submit" className="w-full"> */}
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={reconnaissanceActive}
-        >
-          Ajouter la plante
-        </Button>
+        <div className="w-full flex justify-center">
+          {" "}
+          <Button
+            type="submit"
+            className="{`w-full py-8 px-8 text-white text-lg font-semibold rounded-md shadow-md 
+             bg-primary hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-green-300 
+             disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-80`}"
+            disabled={reconnaissanceActive}
+          >
+            Ajouter la plante
+          </Button>
+        </div>
       </form>
     </Form>
   );
