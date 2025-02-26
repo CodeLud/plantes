@@ -392,7 +392,7 @@ export default function PlantForm() {
                           key={item.id}
                           className={`cursor-pointer rounded-md px-4 py-2 transition-colors duration-300 ${
                             isChecked
-                              ? "bg-emerald-500 text-white"
+                              ? "bg-primary text-white"
                               : "bg-gray-100 text-gray-800"
                           }`}
                           onClick={() => {
@@ -448,7 +448,7 @@ export default function PlantForm() {
                           key={item.id}
                           className={`cursor-pointer rounded-md px-4 py-2 transition-colors duration-300 ${
                             isChecked
-                              ? "bg-primary text-white"
+                              ? "bg-chart-1 text-white"
                               : "bg-gray-100 text-gray-800"
                           }`}
                           onClick={() => {
@@ -502,7 +502,7 @@ export default function PlantForm() {
                           key={item.id}
                           className={`cursor-pointer rounded-md px-4 py-2 transition-colors duration-300 ${
                             isChecked
-                              ? "bg-amber-500 text-white"
+                              ? "bg-chart-5 text-white"
                               : "bg-gray-100 text-gray-800"
                           }`}
                           onClick={() => {
