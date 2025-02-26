@@ -1,6 +1,6 @@
 "use client";
 
-import { mois_plantation } from "@/app/_methodes/function";
+import { ensoleillement, mois_plantation } from "@/app/_methodes/function";
 import { plantFormData, plantFormSchema } from "@/app/_schemas/plantForm";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +30,7 @@ export default function PlantForm() {
       // moPlanting: ["id", "label"],
       // mois_semis: "",
       mois_semis: [], // Tableau vide par défaut,
-      ensoleillement: "",
+      ensoleillement: [], // Tableau vide par défaut,
       notes: "",
       imageUrl: undefined,
     },
@@ -156,12 +156,14 @@ export default function PlantForm() {
     // Convertie le tableau des mois de plantation en une chaîne de caractères.
     const moisPlantationString = values.mois_plantation?.join(", ") || ""; // Chaîne vide si undefined ou tableau vide
     const moisSemisString = values.mois_semis?.join(", ") || "";
+    const moisEnsoleillementString = values.ensoleillement?.join(", ") || "";
 
     // Créer un nouvel objet avec les données formatées
     const formattedValues = {
       ...values,
       mois_plantation: moisPlantationString || null,
       mois_semis: moisSemisString || null,
+      ensoleillement: moisEnsoleillementString || null,
     };
 
     console.log("Données formatées :", formattedValues);
@@ -390,7 +392,7 @@ export default function PlantForm() {
                           key={item.id}
                           className={`cursor-pointer rounded-md px-4 py-2 transition-colors duration-300 ${
                             isChecked
-                              ? "bg-blue-500 text-white"
+                              ? "bg-emerald-500 text-white"
                               : "bg-gray-100 text-gray-800"
                           }`}
                           onClick={() => {
@@ -405,7 +407,7 @@ export default function PlantForm() {
                             }
                           }}
                         >
-                          <FormLabel className="text-sm font-normal">
+                          <FormLabel className="text-sm font-normal capitalize">
                             {item.label}
                           </FormLabel>
                         </FormItem>
@@ -461,7 +463,7 @@ export default function PlantForm() {
                             }
                           }}
                         >
-                          <FormLabel className="text-sm font-normal">
+                          <FormLabel className="text-sm font-normal capitalize">
                             {item.label}
                           </FormLabel>
                         </FormItem>
@@ -479,11 +481,51 @@ export default function PlantForm() {
         <FormField
           control={form.control}
           name="ensoleillement"
-          render={({ field }) => (
+          render={() => (
             <FormItem>
-              <FormControl>
-                <Input placeholder="Ensoleillement" {...field} />
-              </FormControl>
+              <div className="mb-4">
+                <FormLabel className="text-base">Exposition</FormLabel>
+                <FormDescription>Exposition de la plante.</FormDescription>
+              </div>
+              {/* Conteneur principal pour les checkboxes */}
+              <div className="flex flex-wrap gap-4">
+                {ensoleillement.map((item) => (
+                  <FormField
+                    key={item.id}
+                    control={form.control}
+                    name="ensoleillement"
+                    render={({ field }) => {
+                      const isChecked = field.value?.includes(item.id);
+
+                      return (
+                        <FormItem
+                          key={item.id}
+                          className={`cursor-pointer rounded-md px-4 py-2 transition-colors duration-300 ${
+                            isChecked
+                              ? "bg-amber-500 text-white"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                          onClick={() => {
+                            if (isChecked) {
+                              field.onChange(
+                                field.value?.filter(
+                                  (value) => value !== item.id
+                                ) ?? []
+                              );
+                            } else {
+                              field.onChange([...(field.value ?? []), item.id]);
+                            }
+                          }}
+                        >
+                          <FormLabel className="text-sm font-normal capitalize">
+                            {item.label}
+                          </FormLabel>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                ))}
+              </div>
               <FormMessage />
             </FormItem>
           )}

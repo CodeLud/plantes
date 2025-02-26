@@ -92,7 +92,7 @@ export async function POST(request: Request) {
         famille,
         mois_plantation: mois_plantation || null, // Convertir en null si vide// Gérer le cas où c'est vide
         mois_semis: mois_semis || null,
-        ensoleillement,
+        ensoleillement: ensoleillement || null,
         notes,
         imageUrl,
       },

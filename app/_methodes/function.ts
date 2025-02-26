@@ -49,3 +49,19 @@ export const mois_plantation = [
     label: "déc",
   },
 ] as const;
+
+// Données pour les cases à cocher
+export const ensoleillement = [
+  {
+    id: "soleil",
+    label: "soleil",
+  },
+  {
+    id: "mi-ombre",
+    label: "mi-ombre",
+  },
+  {
+    id: "ombre",
+    label: "ombre",
+  },
+] as const;

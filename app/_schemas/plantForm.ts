@@ -14,7 +14,8 @@ export const plantFormSchema = z.object({
   famille: z.string().optional(),
   mois_plantation: z.array(z.string()).optional(), // Tableau optionnel
   mois_semis: z.array(z.string()).optional(), // Tableau optionnel
-  ensoleillement: z.string().optional(),
+  ensoleillement: z.array(z.string()).optional(), // Tableau optionnel
+  //ensoleillement: z.string().optional(),
   notes: z.string().optional(), // Champ optionnel
   imageUrl: z
     .custom<File[]>()
