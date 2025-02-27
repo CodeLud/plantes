@@ -276,55 +276,6 @@ export default function PlantForm() {
           )}
         />
 
-        {/* Champ Espèce */}
-        <FormField
-          control={form.control}
-          name="espece"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <div className="relative">
-                  <Input
-                    placeholder="Espèce de la plante"
-                    {...field}
-                    readOnly={champActif === "espece"}
-                    className={`w-full px-4 py-2 text-base sm:text-lg border rounded-md ${
-                      champActif === "espece"
-                        ? "cursor-not-allowed bg-muted"
-                        : ""
-                    }`}
-                  />
-                  {champActif === "espece" ? (
-                    // Bouton pour arrêter la reconnaissance vocale
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute right-2 top-1/2 -translate-y-1/2"
-                      onClick={arreterReconnaissanceVocale}
-                    >
-                      <Mic className="text-white animate-pulse" />{" "}
-                      {/* Animation pour indiquer l'activité */}
-                    </Button>
-                  ) : (
-                    // Bouton pour démarrer la reconnaissance vocale
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="absolute right-2 top-1/2 -translate-y-1/2"
-                      onClick={() => demarrerReconnaissanceVocale("espece")}
-                    >
-                      <Mic />
-                    </Button>
-                  )}
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         {/* Champ Famille */}
         <FormField
           control={form.control}
@@ -363,6 +314,55 @@ export default function PlantForm() {
                       size="icon"
                       className="absolute right-2 top-1/2 -translate-y-1/2"
                       onClick={() => demarrerReconnaissanceVocale("famille")}
+                    >
+                      <Mic />
+                    </Button>
+                  )}
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Champ Espèce */}
+        <FormField
+          control={form.control}
+          name="espece"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <div className="relative">
+                  <Input
+                    placeholder="Genre espèce"
+                    {...field}
+                    readOnly={champActif === "espece"}
+                    className={`w-full px-4 py-2 text-base sm:text-lg border rounded-md ${
+                      champActif === "espece"
+                        ? "cursor-not-allowed bg-muted"
+                        : ""
+                    }`}
+                  />
+                  {champActif === "espece" ? (
+                    // Bouton pour arrêter la reconnaissance vocale
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={arreterReconnaissanceVocale}
+                    >
+                      <Mic className="text-white animate-pulse" />{" "}
+                      {/* Animation pour indiquer l'activité */}
+                    </Button>
+                  ) : (
+                    // Bouton pour démarrer la reconnaissance vocale
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={() => demarrerReconnaissanceVocale("espece")}
                     >
                       <Mic />
                     </Button>
@@ -550,7 +550,7 @@ export default function PlantForm() {
                 <div className="relative">
                   <Textarea
                     {...field}
-                    placeholder="1) Cliquer sur l'icone microphone. 2) Dicter votre texte. 3) Recliquer sur l'icone pour valider votre commentaire."
+                    placeholder="Cliquez sur l'icône du microphone pour démarrer la dictée. Parlez naturellement. Pour terminer, recliquez sur le microphone."
                     className={`resize-none min-h-72 pr-10 ${
                       reconnaissanceContinueActive ? "bg-muted" : ""
                     }`}

@@ -9,9 +9,16 @@ export const plantFormSchema = z.object({
   nom: z
     .string()
     .min(2, { message: "Nom doit contenir au moins 2 characters." })
-    .max(50, { message: "Nom ne doit pas excéder 50 characters." }),
-  espece: z.string().optional(),
-  famille: z.string().optional(),
+    .max(50, { message: "Nom ne doit pas excéder 50 characters." })
+    .transform((val) => val.toLowerCase()), // Conversion en minuscules
+  espece: z
+    .string()
+    .optional()
+    .transform((val) => val?.toLowerCase()),
+  famille: z
+    .string()
+    .optional()
+    .transform((val) => val?.toLowerCase()),
   mois_plantation: z.array(z.string()).optional(), // Tableau optionnel
   mois_semis: z.array(z.string()).optional(), // Tableau optionnel
   ensoleillement: z.array(z.string()).optional(), // Tableau optionnel
