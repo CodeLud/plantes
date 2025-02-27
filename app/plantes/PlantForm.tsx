@@ -36,6 +36,12 @@ export default function PlantForm() {
     },
   });
 
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = form;
+
   //  Web Speech API
   const [reconnaissanceActive, setReconnaissanceActive] = useState(false);
   // Ajout deux nouveaux états
@@ -226,12 +232,13 @@ export default function PlantForm() {
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={handleSubmit(onSubmit)}
         className="flex-col  space-y-8 border-2 p-4"
       >
         {/* Champ Nom */}
         <FormField
-          control={form.control}
+          //control={form.control}
+          control={control}
           name="nom"
           render={({ field }) => (
             <FormItem>
@@ -278,7 +285,7 @@ export default function PlantForm() {
 
         {/* Champ Famille */}
         <FormField
-          control={form.control}
+          control={control}
           name="famille"
           render={({ field }) => (
             <FormItem>
@@ -327,7 +334,7 @@ export default function PlantForm() {
 
         {/* Champ Espèce */}
         <FormField
-          control={form.control}
+          control={control}
           name="espece"
           render={({ field }) => (
             <FormItem>
@@ -376,7 +383,7 @@ export default function PlantForm() {
 
         {/* Mois de plantation */}
         <FormField
-          control={form.control}
+          control={control}
           name="mois_plantation"
           render={() => (
             <FormItem>
@@ -432,7 +439,7 @@ export default function PlantForm() {
 
         {/* Champ Mois de semis */}
         <FormField
-          control={form.control}
+          control={control}
           name="mois_semis"
           render={() => (
             <FormItem>
@@ -488,7 +495,7 @@ export default function PlantForm() {
 
         {/* Champ Ensoleillement */}
         <FormField
-          control={form.control}
+          control={control}
           name="ensoleillement"
           render={() => (
             <FormItem>
@@ -542,7 +549,7 @@ export default function PlantForm() {
 
         {/* Champ Notes */}
         <FormField
-          control={form.control}
+          control={control}
           name="notes"
           render={({ field }) => (
             <FormItem>
@@ -588,7 +595,7 @@ export default function PlantForm() {
 
         {/* Champ Image */}
         <FormField
-          control={form.control}
+          control={control}
           name="imageUrl"
           render={({ field }) => (
             <FormItem>
@@ -615,9 +622,9 @@ export default function PlantForm() {
             className="{`w-full py-8 px-8 text-white text-lg font-semibold rounded-md shadow-md 
              bg-primary hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-green-300 
              disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-80`}"
-            disabled={reconnaissanceActive}
+            disabled={isSubmitting || reconnaissanceActive}
           >
-            Ajouter la plante
+            {isSubmitting ? "Envoi en cours..." : "Ajouter la plante"}
           </Button>
         </div>
       </form>
