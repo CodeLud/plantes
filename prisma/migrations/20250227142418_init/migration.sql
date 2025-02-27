@@ -1,13 +1,25 @@
-/*
-  Warnings:
+-- CreateTable
+CREATE TABLE "Plante" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "nom" TEXT NOT NULL,
+    "espece" TEXT,
+    "famille" TEXT,
+    "mois_plantation" TEXT,
+    "mois_semis" TEXT,
+    "ensoleillement" TEXT,
+    "notes" TEXT,
+    "imageUrl" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
-  - You are about to drop the `_M_multiplicationToPlante` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropTable
-PRAGMA foreign_keys=off;
-DROP TABLE "_M_multiplicationToPlante";
-PRAGMA foreign_keys=on;
+-- CreateTable
+CREATE TABLE "M_multiplication" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "methode" TEXT,
+    "saison" TEXT,
+    "observation" TEXT
+);
 
 -- CreateTable
 CREATE TABLE "_Plante_M_multiplication" (
