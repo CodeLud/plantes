@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useFormContext } from "react-hook-form";
 import { plantFormData } from "../../_schemas/plantForm";
 import { FormFieldWrapper } from "./3-FieldWrapper";
-import { FormFieldComponentProps } from "./typesInterface";
+import { FormFieldComponentProps } from "./typesInterfaceCopy";
 
 export const FormFieldComponent = ({
   name,

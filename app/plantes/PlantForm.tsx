@@ -233,7 +233,7 @@ export default function PlantForm() {
     <Form {...form}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex-col  space-y-8 border-2 p-4"
+        className="flex-col  space-y-8 border-2 border-white p-4"
       >
         {/* Champ Nom */}
         <FormField
