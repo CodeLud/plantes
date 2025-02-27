@@ -10,14 +10,16 @@ datasource db {
 model Plante {
   id              String             @id @default(cuid())
   nom             String
-  espece          String?
-  famille         String?
-  mois_plantation String?
-  mois_semis      String?
-  ensoleillement  String?
-  notes           String?
-  imageUrl        String?
-  multiplications M_multiplication[] @relation("M_multiplicationToPlante")
+  espece          String? // Optionnel
+  famille         String? // Optionnel
+  mois_plantation String? // Optionnel 
+  mois_semis      String? // Optionnel 
+  ensoleillement  String? // Optionnel
+  notes           String? // Optionnel
+  multiplications M_multiplication[] @relation("Plante_M_multiplication") // Relation n-n
+  imageUrl        String? // Nouveau champ pour stocker le chemin ou l'URL de l'image
+  createdAt       DateTime           @default(now()) // Date de création automatique
+  updatedAt       DateTime           @default(now()) @updatedAt // Date de mise à jour automatique
 }
 
 model M_multiplication {
@@ -25,5 +27,5 @@ model M_multiplication {
   methode     String?
   saison      String?
   observation String?
-  plantes     Plante[] @relation("M_multiplicationToPlante")
+  plantes     Plante[] @relation("Plante_M_multiplication")
 }
