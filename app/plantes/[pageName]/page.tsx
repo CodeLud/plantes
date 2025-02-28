@@ -21,7 +21,7 @@ export default async function pageDetails({
     return (
       <div>
         <h1>Recherche de {slugName}</h1>
-        <span>Désolé, Nous n&apos;avons pas trouvé de réponse.</span>
+        <span>Désolé, Nous aucune réponse de trouvé.</span>
       </div>
     );
   }
