@@ -66,27 +66,30 @@ export default function PlantForm() {
     setActiveField(field);
     setIsVoiceListening(true);
 
-    const Recognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new Recognition();
+    // Utilise une assertion de type pour contourner l'erreur de TypeScript
+    const Recognition = (window.SpeechRecognition ||
+      window.webkitSpeechRecognition) as typeof SpeechRecognition;
 
-    recognition.lang = "fr-FR";
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    if (Recognition) {
+      const recognition = new Recognition();
+      recognition.lang = "fr-FR";
+      recognition.continuous = false;
+      recognition.interimResults = false;
 
-    recognition.onresult = (event) => {
-      const result = event.results[0][0]?.transcript;
-      if (result) {
-        form.setValue(field, result, { shouldValidate: true });
-      }
-    };
+      recognition.onresult = (event) => {
+        const result = event.results[0][0]?.transcript;
+        if (result) {
+          form.setValue(field, result, { shouldValidate: true });
+        }
+      };
 
-    recognition.onend = () => {
-      setIsVoiceListening(false);
-      setActiveField(null);
-    };
+      recognition.onend = () => {
+        setIsVoiceListening(false);
+        setActiveField(null);
+      };
 
-    recognition.start();
+      recognition.start();
+    }
   };
 
   // Démarrer la dictée continue pour le champ "notes"
