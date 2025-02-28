@@ -1,4 +1,3 @@
-// Déclaration de l'interface SpeechRecognition
 interface SpeechRecognition {
   continuous: boolean;
   interimResults: boolean;
@@ -9,7 +8,6 @@ interface SpeechRecognition {
   stop(): void;
 }
 
-// Déclaration des événements liés à SpeechRecognition
 interface SpeechRecognitionEvent {
   results: SpeechRecognitionResultList;
 }
@@ -34,7 +32,6 @@ interface SpeechRecognitionError {
   message: string;
 }
 
-// Étendre l'interface Window pour inclure SpeechRecognition
 declare global {
   interface Window {
     SpeechRecognition?: typeof SpeechRecognition;
