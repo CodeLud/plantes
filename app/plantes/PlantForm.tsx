@@ -52,6 +52,8 @@ export default function PlantForm() {
 
   // Démarrer la reconnaissance vocale pour un champ spécifique
   const startSpeechRecognition = (field: "nom" | "espece" | "famille") => {
+    if (typeof window === "undefined") return; // Vérifie que nous sommes côté client
+
     if (
       !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
     ) {
