@@ -1,4 +1,4 @@
-"use client";
+/* "use client";
 
 import { plantFormData, plantFormSchema } from "@/app/_schemas/plantForm";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -58,3 +58,4 @@ export default function PlantForm() {
     </FormProvider>
   );
 }
+ */
