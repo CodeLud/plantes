@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@types/webspeechapi": "^0.0.30",
     "@hookform/resolvers": "^3.9.1",
     "@prisma/client": "^6.4.1",
     "@radix-ui/react-checkbox": "^1.1.3",
