@@ -1,4 +1,4 @@
-import { Textarea } from "@/components/ui/textarea";
+/* import { Textarea } from "@/components/ui/textarea";
 import { FormFieldComponent } from "./2-FieldComponent";
 import { FormFieldComponentProps } from "./typesInterfaceCopy"; // Importez l'interface commune
 
@@ -19,3 +19,4 @@ export const FormTextareaComponent = ({
     />
   );
 };
+ */

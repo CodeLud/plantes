@@ -1,4 +1,4 @@
-import {
+/* import {
   FormInputComponent,
   FormTextareaComponent,
 } from "./2-FieldComponent copy";
@@ -39,7 +39,7 @@ const FormPlantFields = () => {
         label="plantation"
         placeholder="Mois de plantation"
         description=""
-      /> */}
+      /> 
       <FormInputComponent
         name="mois_semis"
         label="Mois de semis"
@@ -65,3 +65,4 @@ const FormPlantFields = () => {
 };
 
 export default FormPlantFields;
+ */
