@@ -1,8 +1,17 @@
-// global.d.ts
+// Déclaration de l'interface SpeechRecognition
+interface SpeechRecognition {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: SpeechRecognitionError) => void) | null;
+  start(): void;
+  stop(): void;
+}
 
-interface SpeechRecognitionResult {
-  transcript: string;
-  isFinal: boolean;
+// Déclaration des événements liés à SpeechRecognition
+interface SpeechRecognitionEvent {
+  results: SpeechRecognitionResultList;
 }
 
 interface SpeechRecognitionResultList {
@@ -10,8 +19,14 @@ interface SpeechRecognitionResultList {
   length: number;
 }
 
-interface SpeechRecognitionEvent {
-  results: SpeechRecognitionResultList;
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
 }
 
 interface SpeechRecognitionError {
@@ -19,23 +34,10 @@ interface SpeechRecognitionError {
   message: string;
 }
 
-type SpeechRecognitionConstructor = {
-  new (): SpeechRecognition;
-};
-
-interface SpeechRecognition {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onresult?: (event: SpeechRecognitionEvent) => void;
-  onerror?: (event: SpeechRecognitionError) => void;
-  start(): void;
-  stop(): void;
-}
-
+// Étendre l'interface Window pour inclure SpeechRecognition
 declare global {
   interface Window {
-    SpeechRecognition?: SpeechRecognitionConstructor;
-    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+    SpeechRecognition?: typeof SpeechRecognition;
+    webkitSpeechRecognition?: typeof SpeechRecognition;
   }
 }

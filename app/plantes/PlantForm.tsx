@@ -5,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -15,6 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Mic } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { ensoleillement, mois_plantation } from "../_methodes/function";
 
 export default function PlantForm() {
   const form = useForm<plantFormData>({
@@ -49,7 +52,9 @@ export default function PlantForm() {
 
   // Démarrer la reconnaissance vocale pour un champ spécifique
   const startSpeechRecognition = (field: "nom" | "espece" | "famille") => {
-    if (!("webkitSpeechRecognition" in window)) {
+    if (
+      !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
+    ) {
       alert(
         "La reconnaissance vocale n'est pas supportée par votre navigateur"
       );
@@ -59,8 +64,10 @@ export default function PlantForm() {
     setActiveField(field);
     setIsVoiceListening(true);
 
-    const recognition = new (window.SpeechRecognition ||
-      window.webkitSpeechRecognition)();
+    const Recognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new Recognition();
+
     recognition.lang = "fr-FR";
     recognition.continuous = false;
     recognition.interimResults = false;
@@ -82,15 +89,19 @@ export default function PlantForm() {
 
   // Démarrer la dictée continue pour le champ "notes"
   const startContinuousSpeechRecognition = () => {
-    if (!("webkitSpeechRecognition" in window)) {
+    if (
+      !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
+    ) {
       alert(
         "La reconnaissance vocale n'est pas supportée par votre navigateur"
       );
       return;
     }
 
-    const recognition = new (window.SpeechRecognition ||
-      window.webkitSpeechRecognition)();
+    const Recognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new Recognition();
+
     recognition.lang = "fr-FR";
     recognition.continuous = true;
     recognition.interimResults = true;
@@ -175,7 +186,7 @@ export default function PlantForm() {
     <Form {...form}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex-col space-y-8 border-2 border-white p-4"
+        className="flex-col  space-y-8 border-2 border-white p-4"
       >
         {/* Champ Nom */}
         <FormField
@@ -221,8 +232,262 @@ export default function PlantForm() {
           )}
         />
 
-        {/* Autres champs similaires (espece, famille, etc.) */}
+        {/* Champ Famille */}
+        <FormField
+          control={control}
+          name="famille"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <div className="relative">
+                  <Input
+                    {...field}
+                    placeholder="Famille de la plante"
+                    readOnly={activeField === "famille"}
+                    className={`w-full px-4 py-2 text-base sm:text-lg border rounded-md ${
+                      activeField === "famille"
+                        ? "cursor-not-allowed bg-muted"
+                        : ""
+                    }`}
+                  />
+                  {activeField === "famille" ? (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={stopSpeechRecognition}
+                    >
+                      <Mic className="text-white animate-pulse" />
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={() => startSpeechRecognition("famille")}
+                    >
+                      <Mic />
+                    </Button>
+                  )}
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        {/* Champ Espèce */}
+        <FormField
+          control={control}
+          name="espece"
+          render={({ field }) => (
+            <FormItem>
+              <FormControl>
+                <div className="relative">
+                  <Input
+                    {...field}
+                    placeholder="Espèce de la plante"
+                    readOnly={activeField === "espece"}
+                    className={`w-full px-4 py-2 text-base sm:text-lg border rounded-md ${
+                      activeField === "espece"
+                        ? "cursor-not-allowed bg-muted"
+                        : ""
+                    }`}
+                  />
+                  {activeField === "espece" ? (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={stopSpeechRecognition}
+                    >
+                      <Mic className="text-white animate-pulse" />
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                      onClick={() => startSpeechRecognition("espece")}
+                    >
+                      <Mic />
+                    </Button>
+                  )}
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
+        {/* Mois de plantation */}
+        <FormField
+          control={control}
+          name="mois_plantation"
+          render={() => (
+            <FormItem>
+              <div className="mb-4">
+                <FormLabel className="text-base">Mois de plantation</FormLabel>
+                <FormDescription>
+                  Sélectionnez le(s) mois de plantation de la plante.
+                </FormDescription>
+              </div>
+              {/* Conteneur principal pour les checkboxes */}
+              <div className="flex flex-wrap gap-4">
+                {mois_plantation.map((item) => (
+                  <FormField
+                    key={item.id}
+                    control={form.control}
+                    name="mois_plantation"
+                    render={({ field }) => {
+                      const isChecked = field.value?.includes(item.id);
+
+                      return (
+                        <FormItem
+                          key={item.id}
+                          className={`cursor-pointer rounded-md px-4 py-2 transition-colors duration-300 ${
+                            isChecked
+                              ? "bg-primary text-white"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                          onClick={() => {
+                            if (isChecked) {
+                              field.onChange(
+                                field.value?.filter(
+                                  (value) => value !== item.id
+                                ) ?? []
+                              );
+                            } else {
+                              field.onChange([...(field.value ?? []), item.id]);
+                            }
+                          }}
+                        >
+                          <FormLabel className="text-sm font-normal capitalize">
+                            {item.label}
+                          </FormLabel>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                ))}
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Champ Mois de semis */}
+        <FormField
+          control={control}
+          name="mois_semis"
+          render={() => (
+            <FormItem>
+              <div className="mb-4">
+                <FormLabel className="text-base">Mois de semis</FormLabel>
+                <FormDescription>
+                  Sélectionnez le(s) mois de semis de la plante.
+                </FormDescription>
+              </div>
+              {/* Conteneur principal pour les checkboxes */}
+              <div className="flex flex-wrap gap-4">
+                {mois_plantation.map((item) => (
+                  <FormField
+                    key={item.id}
+                    control={form.control}
+                    name="mois_semis"
+                    render={({ field }) => {
+                      const isChecked = field.value?.includes(item.id);
+
+                      return (
+                        <FormItem
+                          key={item.id}
+                          className={`cursor-pointer rounded-md px-4 py-2 transition-colors duration-300 ${
+                            isChecked
+                              ? "bg-primary text-white"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                          onClick={() => {
+                            if (isChecked) {
+                              field.onChange(
+                                field.value?.filter(
+                                  (value) => value !== item.id
+                                ) ?? []
+                              );
+                            } else {
+                              field.onChange([...(field.value ?? []), item.id]);
+                            }
+                          }}
+                        >
+                          <FormLabel className="text-sm font-normal capitalize">
+                            {item.label}
+                          </FormLabel>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                ))}
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Champ Ensoleillement */}
+        <FormField
+          control={control}
+          name="ensoleillement"
+          render={() => (
+            <FormItem>
+              <div className="mb-4">
+                <FormLabel className="text-base">Exposition</FormLabel>
+                <FormDescription>Exposition de la plante.</FormDescription>
+              </div>
+              {/* Conteneur principal pour les checkboxes */}
+              <div className="flex flex-wrap gap-4">
+                {ensoleillement.map((item) => (
+                  <FormField
+                    key={item.id}
+                    control={form.control}
+                    name="ensoleillement"
+                    render={({ field }) => {
+                      const isChecked = field.value?.includes(item.id);
+
+                      return (
+                        <FormItem
+                          key={item.id}
+                          className={`cursor-pointer rounded-md px-4 py-2 transition-colors duration-300 ${
+                            isChecked
+                              ? "bg-primary text-white"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                          onClick={() => {
+                            if (isChecked) {
+                              field.onChange(
+                                field.value?.filter(
+                                  (value) => value !== item.id
+                                ) ?? []
+                              );
+                            } else {
+                              field.onChange([...(field.value ?? []), item.id]);
+                            }
+                          }}
+                        >
+                          <FormLabel className="text-sm font-normal capitalize">
+                            {item.label}
+                          </FormLabel>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                ))}
+              </div>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         {/* Champ Notes */}
         <FormField
           control={control}
@@ -236,7 +501,7 @@ export default function PlantForm() {
                     placeholder="Cliquez sur l'icône du microphone pour démarrer la dictée..."
                     readOnly={activeField === "notes"}
                     className={`resize-none min-h-72 pr-10 ${
-                      isVoiceListening ? "bg-muted" : ""
+                      activeField === "notes" ? "bg-muted" : ""
                     }`}
                   />
                   {activeField === "notes" ? (
@@ -267,8 +532,28 @@ export default function PlantForm() {
           )}
         />
 
+        {/* Champ Image */}
+        <FormField
+          control={control}
+          name="imageUrl"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Téléchager un Image ? </FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={(e) => field.onChange(e.target.files)}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         {/* Bouton de soumission */}
-        <div className="w-full flex justify-center">
+        <div className="flex justify-center">
           <Button
             type="submit"
             className={`w-full py-8 px-8 text-white text-lg font-semibold rounded-md shadow-md bg-primary hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-green-300 ${
