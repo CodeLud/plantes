@@ -10,7 +10,7 @@ export default async function pageDetails({
   const slugName = (await params).pageName;
   // Récupère les données concernant la fiche dans le model plante
   // Retrieves data on the table model plant
-  const maPlante = await prisma.plante.findUnique({
+  const maPlante = await prisma.plante.findFirst({
     where: {
       nom: slugName,
     },
