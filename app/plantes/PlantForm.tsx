@@ -1,22 +1,19 @@
 "use client";
 
-import { ensoleillement, mois_plantation } from "@/app/_methodes/function";
 import { plantFormData, plantFormSchema } from "@/app/_schemas/plantForm";
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mic } from "lucide-react";
-import { useRef, useState } from "react"; // <-- Ajouter ici
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 export default function PlantForm() {
@@ -26,11 +23,9 @@ export default function PlantForm() {
       nom: "",
       espece: "",
       famille: "",
-      mois_plantation: [], // Tableau vide par défaut,
-      // moPlanting: ["id", "label"],
-      // mois_semis: "",
-      mois_semis: [], // Tableau vide par défaut,
-      ensoleillement: [], // Tableau vide par défaut,
+      mois_plantation: [], // Tableau vide par défaut
+      mois_semis: [], // Tableau vide par défaut
+      ensoleillement: [], // Tableau vide par défaut
       notes: "",
       imageUrl: undefined,
     },
@@ -39,25 +34,21 @@ export default function PlantForm() {
   const {
     control,
     handleSubmit,
-    formState: { isSubmitting },
+    formState: { isSubmitting }, // État du formulaire
   } = form;
 
-  //  Web Speech API
-  const [reconnaissanceActive, setReconnaissanceActive] = useState(false);
-  // Ajout deux nouveaux états
-  const [reconnaissanceContinueActive, setReconnaissanceContinueActive] =
-    useState(false);
+  // État pour la reconnaissance vocale
+  const [isVoiceListening, setIsVoiceListening] = useState(false);
   const [recognitionInstance, setRecognitionInstance] =
     useState<SpeechRecognition | null>(null);
 
-  const [champActif, setChampActif] = useState<
+  const [activeField, setActiveField] = useState<
     "nom" | "espece" | "famille" | "notes" | null
   >(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const demarrerReconnaissanceVocale = async (
-    champ: "nom" | "espece" | "famille"
-  ) => {
+  // Démarrer la reconnaissance vocale pour un champ spécifique
+  const startSpeechRecognition = (field: "nom" | "espece" | "famille") => {
     if (!("webkitSpeechRecognition" in window)) {
       alert(
         "La reconnaissance vocale n'est pas supportée par votre navigateur"
@@ -65,10 +56,8 @@ export default function PlantForm() {
       return;
     }
 
-    setChampActif(champ);
-    setReconnaissanceActive(true);
-
-    if (reconnaissanceActive) return;
+    setActiveField(field);
+    setIsVoiceListening(true);
 
     const recognition = new (window.SpeechRecognition ||
       window.webkitSpeechRecognition)();
@@ -77,25 +66,22 @@ export default function PlantForm() {
     recognition.interimResults = false;
 
     recognition.onresult = (event) => {
-      const resultat = event.results[0][0]?.transcript;
-      if (resultat) {
-        form.setValue(champ, resultat, { shouldValidate: true });
+      const result = event.results[0][0]?.transcript;
+      if (result) {
+        form.setValue(field, result, { shouldValidate: true });
       }
     };
 
     recognition.onend = () => {
-      setReconnaissanceActive(false);
-      setChampActif(null);
+      setIsVoiceListening(false);
+      setActiveField(null);
     };
 
     recognition.start();
-    setReconnaissanceActive(true);
-    setChampActif(champ);
   };
-  // fin de la fonction demarrerReconnaissanceVocale
 
-  // Nouvelle fonction pour la dictée continue du Textarea
-  const demarrerReconnaissanceVocaleContinue = () => {
+  // Démarrer la dictée continue pour le champ "notes"
+  const startContinuousSpeechRecognition = () => {
     if (!("webkitSpeechRecognition" in window)) {
       alert(
         "La reconnaissance vocale n'est pas supportée par votre navigateur"
@@ -112,87 +98,57 @@ export default function PlantForm() {
     recognition.onresult = (event) => {
       const transcript = Array.from(event.results)
         .map((result) => result[0].transcript)
-        .join(" ");
-      form.setValue("notes", transcript);
+        .join("");
+      form.setValue("notes", transcript, { shouldValidate: true });
     };
 
     recognition.onend = () => {
-      setReconnaissanceContinueActive(false);
-      setChampActif(null);
+      setIsVoiceListening(false);
+      setActiveField(null);
     };
 
     recognition.start();
-    setReconnaissanceContinueActive(true);
-    setChampActif("notes");
+    setIsVoiceListening(true);
+    setActiveField("notes");
     setRecognitionInstance(recognition);
   };
 
-  /*  const arreterReconnaissanceVocale = () => {
-    if (window.SpeechRecognition || window.webkitSpeechRecognition) {
-      const recognition = new (window.SpeechRecognition ||
-        window.webkitSpeechRecognition)();
-      recognition.stop();
-    }
-
-    setReconnaissanceActive(false);
-    setChampActif(null);
-
-    form.trigger(); // Déclenche la validation après la saisie vocale
-  }; */
-
-  // Fonction modifiée pour arrêter la reconnaissance
-  const arreterReconnaissanceVocale = () => {
+  // Arrêter la reconnaissance vocale
+  const stopSpeechRecognition = () => {
     if (recognitionInstance) {
       recognitionInstance.stop();
     }
-    setReconnaissanceActive(false);
-    setReconnaissanceContinueActive(false);
-    setChampActif(null);
+    setIsVoiceListening(false);
+    setActiveField(null);
     setRecognitionInstance(null);
   };
 
-  // Fin de modif Web Speech API
-
-  // 1. Ajouter une référence à l'input fichier
-  // const fileInputRef = useRef<HTMLInputElement>(null);
-
+  // Gestion de la soumission du formulaire
   const onSubmit = async (values: plantFormData) => {
-    console.log("Données du formulaire :", values);
+    console.log("Données du formulaire:", values);
 
-    // Convertie le tableau des mois de plantation en une chaîne de caractères.
-    const moisPlantationString = values.mois_plantation?.join(", ") || ""; // Chaîne vide si undefined ou tableau vide
-    const moisSemisString = values.mois_semis?.join(", ") || "";
-    const moisEnsoleillementString = values.ensoleillement?.join(", ") || "";
-
-    // Créer un nouvel objet avec les données formatées
+    // Conversion des tableaux en chaînes de caractères
     const formattedValues = {
       ...values,
-      mois_plantation: moisPlantationString || null,
-      mois_semis: moisSemisString || null,
-      ensoleillement: moisEnsoleillementString || null,
+      mois_plantation: values.mois_plantation?.join(",") || null,
+      mois_semis: values.mois_semis?.join(",") || null,
+      ensoleillement: values.ensoleillement?.join(",") || null,
     };
 
-    console.log("Données formatées :", formattedValues);
+    console.log("Données formatées:", formattedValues);
 
-    // Gestion des fichiers image :
     const formData = new FormData();
     formData.append("nom", formattedValues.nom);
-    formData.append("espece", formattedValues.espece || ""); // Valeur par défaut si le champ est optionnel
-    formData.append("famille", formattedValues.famille || ""); // Valeur par défaut si le champ est optionnel
-    formData.append("mois_semis", formattedValues.mois_semis || ""); // Valeur par défaut si le champ est optionnel
-    formData.append("ensoleillement", formattedValues.ensoleillement || ""); // Valeur par défaut si le champ est optionnel
-    formData.append("mois_plantation", formattedValues.mois_plantation || ""); // Valeur par défaut si le champ est optionnel
-    formData.append("notes", formattedValues.notes || ""); // Valeur par défaut si le champ est optionnel
+    formData.append("espece", formattedValues.espece || "");
+    formData.append("famille", formattedValues.famille || "");
+    formData.append("mois_semis", formattedValues.mois_semis || "");
+    formData.append("ensoleillement", formattedValues.ensoleillement || "");
+    formData.append("mois_plantation", formattedValues.mois_plantation || "");
+    formData.append("notes", formattedValues.notes || "");
 
-    // Ajoute une image si elle existe
     if (values.imageUrl && values.imageUrl.length > 0) {
       formData.append("imageUrl", values.imageUrl[0]);
     }
-
-    // Vérifie le contenu de FormData par convertion de la valeur en objet JavaScript
-    const formDataObject = Object.fromEntries(formData.entries());
-    console.log("Données formData :", formDataObject);
-    //return;
 
     try {
       const response = await fetch("/api/plantes", {
@@ -201,43 +157,28 @@ export default function PlantForm() {
       });
 
       if (response.ok) {
-        console.log("Plante ajoutée avec succès !");
+        console.log("Plante ajoutée avec succès!");
         form.reset();
-        // Réinitialisation spécifique au champ fichier
-        form.resetField("imageUrl");
-        // Réinitialisation DOM via la ref
         if (fileInputRef.current) {
           fileInputRef.current.value = "";
         }
       } else {
         const errorData = await response.json();
-        console.error("Erreur 2:", errorData.error);
-      }
-
-      if (!response.ok) throw new Error("Erreur lors de l'ajout du nom 1");
-      if (!response.ok) {
-        console.error(
-          "Erreur du serveur 3 :",
-          response.status,
-          response.statusText
-        );
-        return;
+        console.error("Erreur lors de l'ajout de la plante:", errorData.error);
       }
     } catch (error) {
-      console.error("Erreur lors de l'envoi du formulaire PlantForm:", error);
+      console.error("Erreur lors de l'envoi du formulaire:", error);
     }
   };
 
-  // mon formulaire
   return (
     <Form {...form}>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="flex-col  space-y-8 border-2 border-white p-4"
+        className="flex-col space-y-8 border-2 border-white p-4"
       >
         {/* Champ Nom */}
         <FormField
-          //control={form.control}
           control={control}
           name="nom"
           render={({ field }) => (
@@ -247,31 +188,28 @@ export default function PlantForm() {
                   <Input
                     {...field}
                     placeholder="Nom de la plante"
-                    readOnly={champActif === "nom"}
+                    readOnly={activeField === "nom"}
                     className={`w-full px-4 py-2 text-base sm:text-lg border rounded-md ${
-                      champActif === "nom" ? "cursor-not-allowed bg-muted" : ""
+                      activeField === "nom" ? "cursor-not-allowed bg-muted" : ""
                     }`}
                   />
-                  {champActif === "nom" ? (
-                    // Bouton pour arrêter la reconnaissance vocale
+                  {activeField === "nom" ? (
                     <Button
                       type="button"
                       variant="destructive"
                       size="icon"
                       className="absolute right-2 top-1/2 -translate-y-1/2"
-                      onClick={arreterReconnaissanceVocale}
+                      onClick={stopSpeechRecognition}
                     >
-                      <Mic className="text-white animate-pulse" />{" "}
-                      {/* Animation pour indiquer l'activité */}
+                      <Mic className="text-white animate-pulse" />
                     </Button>
                   ) : (
-                    // Bouton pour démarrer la reconnaissance vocale
                     <Button
                       type="button"
                       variant="outline"
                       size="icon"
                       className="absolute right-2 top-1/2 -translate-y-1/2"
-                      onClick={() => demarrerReconnaissanceVocale("nom")}
+                      onClick={() => startSpeechRecognition("nom")}
                     >
                       <Mic />
                     </Button>
@@ -283,269 +221,7 @@ export default function PlantForm() {
           )}
         />
 
-        {/* Champ Famille */}
-        <FormField
-          control={control}
-          name="famille"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <div className="relative">
-                  <Input
-                    placeholder="Famille de la plante"
-                    {...field}
-                    readOnly={champActif === "famille"}
-                    className={`w-full px-4 py-2 text-base sm:text-lg border rounded-md ${
-                      champActif === "famille"
-                        ? "cursor-not-allowed bg-muted"
-                        : ""
-                    }`}
-                  />
-                  {champActif === "famille" ? (
-                    // Bouton pour arrêter la reconnaissance vocale
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute right-2 top-1/2 -translate-y-1/2"
-                      onClick={arreterReconnaissanceVocale}
-                    >
-                      <Mic className="text-white animate-pulse" />{" "}
-                      {/* Animation pour indiquer l'activité */}
-                    </Button>
-                  ) : (
-                    // Bouton pour démarrer la reconnaissance vocale
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="absolute right-2 top-1/2 -translate-y-1/2"
-                      onClick={() => demarrerReconnaissanceVocale("famille")}
-                    >
-                      <Mic />
-                    </Button>
-                  )}
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Champ Espèce */}
-        <FormField
-          control={control}
-          name="espece"
-          render={({ field }) => (
-            <FormItem>
-              <FormControl>
-                <div className="relative">
-                  <Input
-                    placeholder="Genre espèce"
-                    {...field}
-                    readOnly={champActif === "espece"}
-                    className={`w-full px-4 py-2 text-base sm:text-lg border rounded-md ${
-                      champActif === "espece"
-                        ? "cursor-not-allowed bg-muted"
-                        : ""
-                    }`}
-                  />
-                  {champActif === "espece" ? (
-                    // Bouton pour arrêter la reconnaissance vocale
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute right-2 top-1/2 -translate-y-1/2"
-                      onClick={arreterReconnaissanceVocale}
-                    >
-                      <Mic className="text-white animate-pulse" />{" "}
-                      {/* Animation pour indiquer l'activité */}
-                    </Button>
-                  ) : (
-                    // Bouton pour démarrer la reconnaissance vocale
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="absolute right-2 top-1/2 -translate-y-1/2"
-                      onClick={() => demarrerReconnaissanceVocale("espece")}
-                    >
-                      <Mic />
-                    </Button>
-                  )}
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Mois de plantation */}
-        <FormField
-          control={control}
-          name="mois_plantation"
-          render={() => (
-            <FormItem>
-              <div className="mb-4">
-                <FormLabel className="text-base">Mois de plantation</FormLabel>
-                <FormDescription>
-                  Sélectionnez le(s) mois de plantation de la plante.
-                </FormDescription>
-              </div>
-              {/* Conteneur principal pour les checkboxes */}
-              <div className="flex flex-wrap gap-4">
-                {mois_plantation.map((item) => (
-                  <FormField
-                    key={item.id}
-                    control={form.control}
-                    name="mois_plantation"
-                    render={({ field }) => {
-                      const isChecked = field.value?.includes(item.id);
-
-                      return (
-                        <FormItem
-                          key={item.id}
-                          className={`cursor-pointer rounded-md px-4 py-2 transition-colors duration-300 ${
-                            isChecked
-                              ? "bg-primary text-white"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
-                          onClick={() => {
-                            if (isChecked) {
-                              field.onChange(
-                                field.value?.filter(
-                                  (value) => value !== item.id
-                                ) ?? []
-                              );
-                            } else {
-                              field.onChange([...(field.value ?? []), item.id]);
-                            }
-                          }}
-                        >
-                          <FormLabel className="text-sm font-normal capitalize">
-                            {item.label}
-                          </FormLabel>
-                        </FormItem>
-                      );
-                    }}
-                  />
-                ))}
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Champ Mois de semis */}
-        <FormField
-          control={control}
-          name="mois_semis"
-          render={() => (
-            <FormItem>
-              <div className="mb-4">
-                <FormLabel className="text-base">Mois de semis</FormLabel>
-                <FormDescription>
-                  Sélectionnez le(s) mois de semis de la plante.
-                </FormDescription>
-              </div>
-              {/* Conteneur principal pour les checkboxes */}
-              <div className="flex flex-wrap gap-4">
-                {mois_plantation.map((item) => (
-                  <FormField
-                    key={item.id}
-                    control={form.control}
-                    name="mois_semis"
-                    render={({ field }) => {
-                      const isChecked = field.value?.includes(item.id);
-
-                      return (
-                        <FormItem
-                          key={item.id}
-                          className={`cursor-pointer rounded-md px-4 py-2 transition-colors duration-300 ${
-                            isChecked
-                              ? "bg-primary text-white"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
-                          onClick={() => {
-                            if (isChecked) {
-                              field.onChange(
-                                field.value?.filter(
-                                  (value) => value !== item.id
-                                ) ?? []
-                              );
-                            } else {
-                              field.onChange([...(field.value ?? []), item.id]);
-                            }
-                          }}
-                        >
-                          <FormLabel className="text-sm font-normal capitalize">
-                            {item.label}
-                          </FormLabel>
-                        </FormItem>
-                      );
-                    }}
-                  />
-                ))}
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Champ Ensoleillement */}
-        <FormField
-          control={control}
-          name="ensoleillement"
-          render={() => (
-            <FormItem>
-              <div className="mb-4">
-                <FormLabel className="text-base">Exposition</FormLabel>
-                <FormDescription>Exposition de la plante.</FormDescription>
-              </div>
-              {/* Conteneur principal pour les checkboxes */}
-              <div className="flex flex-wrap gap-4">
-                {ensoleillement.map((item) => (
-                  <FormField
-                    key={item.id}
-                    control={form.control}
-                    name="ensoleillement"
-                    render={({ field }) => {
-                      const isChecked = field.value?.includes(item.id);
-
-                      return (
-                        <FormItem
-                          key={item.id}
-                          className={`cursor-pointer rounded-md px-4 py-2 transition-colors duration-300 ${
-                            isChecked
-                              ? "bg-primary text-white"
-                              : "bg-gray-100 text-gray-800"
-                          }`}
-                          onClick={() => {
-                            if (isChecked) {
-                              field.onChange(
-                                field.value?.filter(
-                                  (value) => value !== item.id
-                                ) ?? []
-                              );
-                            } else {
-                              field.onChange([...(field.value ?? []), item.id]);
-                            }
-                          }}
-                        >
-                          <FormLabel className="text-sm font-normal capitalize">
-                            {item.label}
-                          </FormLabel>
-                        </FormItem>
-                      );
-                    }}
-                  />
-                ))}
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        {/* Autres champs similaires (espece, famille, etc.) */}
 
         {/* Champ Notes */}
         <FormField
@@ -557,35 +233,33 @@ export default function PlantForm() {
                 <div className="relative">
                   <Textarea
                     {...field}
-                    placeholder="Cliquez sur l'icône du microphone pour démarrer la dictée. Parlez naturellement. Pour terminer, recliquez sur le microphone."
+                    placeholder="Cliquez sur l'icône du microphone pour démarrer la dictée..."
+                    readOnly={activeField === "notes"}
                     className={`resize-none min-h-72 pr-10 ${
-                      reconnaissanceContinueActive ? "bg-muted" : ""
+                      isVoiceListening ? "bg-muted" : ""
                     }`}
-                    readOnly={reconnaissanceContinueActive}
                   />
-                  <div className="absolute right-2 bottom-2">
-                    {reconnaissanceContinueActive ? (
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        onClick={arreterReconnaissanceVocale}
-                      >
-                        {/* <Mic className="h-4 w-4 text-white" /> */}
-                        <Mic className="text-white animate-pulse" />{" "}
-                        {/* Animation pour indiquer l'activité */}
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="icon"
-                        onClick={demarrerReconnaissanceVocaleContinue}
-                      >
-                        <Mic className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
+                  {activeField === "notes" ? (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute right-2 bottom-2"
+                      onClick={stopSpeechRecognition}
+                    >
+                      <Mic className="text-white animate-pulse" />
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="absolute right-2 bottom-2"
+                      onClick={startContinuousSpeechRecognition}
+                    >
+                      <Mic />
+                    </Button>
+                  )}
                 </div>
               </FormControl>
               <FormMessage />
@@ -593,36 +267,16 @@ export default function PlantForm() {
           )}
         />
 
-        {/* Champ Image */}
-        <FormField
-          control={control}
-          name="imageUrl"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Téléchager un Image ? </FormLabel>
-              <FormControl>
-                <Input
-                  type="file"
-                  accept="image/*"
-                  ref={fileInputRef}
-                  onChange={(e) => field.onChange(e.target.files)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
         {/* Bouton de soumission */}
-        {/* <Button type="submit" className="w-full"> */}
         <div className="w-full flex justify-center">
-          {" "}
           <Button
             type="submit"
-            className="{`w-full py-8 px-8 text-white text-lg font-semibold rounded-md shadow-md 
-             bg-primary hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-green-300 
-             disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-80`}"
-            disabled={isSubmitting || reconnaissanceActive}
+            className={`w-full py-8 px-8 text-white text-lg font-semibold rounded-md shadow-md bg-primary hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-green-300 ${
+              isSubmitting || isVoiceListening
+                ? "disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-80"
+                : ""
+            }`}
+            disabled={isSubmitting || isVoiceListening}
           >
             {isSubmitting ? "Envoi en cours..." : "Ajouter la plante"}
           </Button>
