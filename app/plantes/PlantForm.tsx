@@ -91,6 +91,9 @@ export default function PlantForm() {
 
   // Démarrer la dictée continue pour le champ "notes"
   const startContinuousSpeechRecognition = () => {
+    // Vérifie si nous sommes dans un environnement client
+    if (typeof window === "undefined") return;
+
     if (
       !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
     ) {
