@@ -62,13 +62,25 @@ export default function PlantForm() {
   // Démarrer la reconnaissance vocale pour un champ spécifique
   const startSpeechRecognition = (field: "nom" | "espece" | "famille") => {
    
-    if (typeof window === "undefined" ||
+   /*  if (typeof window === "undefined" ||
       !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) {
         alert(
           "La reconnaissance vocale n'est pas supportée par votre navigateur"
         );
         return;
-      } 
+      }  */
+
+      // Vérifie si nous sommes dans un environnement client
+    if (typeof window === "undefined") return;
+
+    if (
+      !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
+    ) {
+      alert(
+        "La reconnaissance vocale n'est pas supportée par votre navigateur"
+      );
+      return;
+    }
 
     setActiveField(field);
     setIsVoiceListening(true);
