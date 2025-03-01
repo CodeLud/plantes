@@ -577,4 +577,5 @@ export default function PlantForm() {
       </form>
     </Form>
   );
+  console.log("globalTypesLoaded:", (window as any).isGlobalTypesLoaded);
 }
