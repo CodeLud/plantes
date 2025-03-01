@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mic } from "lucide-react";
-import { useRef, useState, useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ensoleillement, mois_plantation } from "../_methodes/function";
 
@@ -28,9 +28,9 @@ export default function PlantForm() {
       nom: "",
       espece: "",
       famille: "",
-      mois_plantation: [], // Tableau vide par défaut
-      mois_semis: [], // Tableau vide par défaut
-      ensoleillement: [], // Tableau vide par défaut
+      mois_plantation: [], // vide par défaut
+      mois_semis: [], // vide par défaut
+      ensoleillement: [], // vide par défaut
       notes: "",
       imageUrl: undefined,
     },
@@ -44,34 +44,29 @@ export default function PlantForm() {
 
   // État pour la reconnaissance vocale
   const [isVoiceListening, setIsVoiceListening] = useState(false);
-  const [recognitionInstance, setRecognitionInstance] =
-    useState<SpeechRecognition | null>(null);
+  const [recognitionInstance, setRecognitionInstance] = useState<SpeechRecognition | null>(null);
 
-  const [activeField, setActiveField] = useState<
-    "nom" | "espece" | "famille" | "notes" | null
-  >(null);
-
+  const [activeField, setActiveField] = useState<"nom" | "espece" | "famille" | "notes" | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [isSpeechRecognitionSupported, setIsSpeechRecognitionSupported] = useState(false);
-
-  useEffect(() => {
+  //const [isSpeechRecognitionSupported, setIsSpeechRecognitionSupported] = useState(false);
+ 
+  // Désactivé car on utilise la vérification direct
+ /*  useEffect(() => {
     setIsSpeechRecognitionSupported(
       typeof window !== "undefined" &&
         ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
     );
-  }, []);
+  }, []); */
 
   // Démarrer la reconnaissance vocale pour un champ spécifique
   const startSpeechRecognition = (field: "nom" | "espece" | "famille") => {
-    //if (typeof window === "undefined") return; // Vérifie que nous sommes côté client
-
+   
     if (typeof window === "undefined" ||
       !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) return; 
 
     setActiveField(field);
     setIsVoiceListening(true);
-
   
 // 1. Vérification d'environnement + 
 //  Assertion de type explicite : as { new(): SpeechRecognition } indique à TypeScript qu'il s'agit d'un constructeur
