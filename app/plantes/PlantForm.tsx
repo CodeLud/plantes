@@ -19,9 +19,7 @@ import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ensoleillement, mois_plantation } from "../_methodes/function";
 
-
 export default function PlantForm() {
-
   const form = useForm<plantFormData>({
     resolver: zodResolver(plantFormSchema),
     defaultValues: {
@@ -44,25 +42,17 @@ export default function PlantForm() {
 
   // État pour la reconnaissance vocale
   const [isVoiceListening, setIsVoiceListening] = useState(false);
-  const [recognitionInstance, setRecognitionInstance] = useState<SpeechRecognition | null>(null);
+  const [recognitionInstance, setRecognitionInstance] =
+    useState<SpeechRecognition | null>(null);
 
-  const [activeField, setActiveField] = useState<"nom" | "espece" | "famille" | "notes" | null>(null);
+  const [activeField, setActiveField] = useState<
+    "nom" | "espece" | "famille" | "notes" | null
+  >(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  //const [isSpeechRecognitionSupported, setIsSpeechRecognitionSupported] = useState(false);
- 
-  // Désactivé car on utilise la vérification direct
- /*  useEffect(() => {
-    setIsSpeechRecognitionSupported(
-      typeof window !== "undefined" &&
-        ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
-    );
-  }, []); */
 
   // Démarrer la reconnaissance vocale pour un champ spécifique
   const startSpeechRecognition = (field: "nom" | "espece" | "famille") => {
-   
-   /*  if (typeof window === "undefined" ||
+    /*  if (typeof window === "undefined" ||
       !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) {
         alert(
           "La reconnaissance vocale n'est pas supportée par votre navigateur"
@@ -70,10 +60,9 @@ export default function PlantForm() {
         return;
       }  */
 
-      // Vérifie si nous sommes dans un environnement client
-    if (typeof window === "undefined") return;
-
+    // Vérifie si nous sommes dans un environnement client et que le navigateur accepte la RV
     if (
+      typeof window === "undefined" ||
       !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
     ) {
       alert(
@@ -84,14 +73,17 @@ export default function PlantForm() {
 
     setActiveField(field);
     setIsVoiceListening(true);
-  
-// 1. Vérification d'environnement + 
-//  Assertion de type explicite : as { new(): SpeechRecognition } indique à TypeScript qu'il s'agit d'un constructeur
-const Recognition = typeof window !== "undefined" 
-  ? (window.SpeechRecognition || window.webkitSpeechRecognition) as { new(): SpeechRecognition } 
-  : null;
 
-  // 2. Instanciation sécurisée avec vérification
+    // 1. Vérification d'environnement +
+    //  Assertion de type explicite : as { new(): SpeechRecognition } indique à TypeScript qu'il s'agit d'un constructeur
+    const Recognition =
+      typeof window !== "undefined"
+        ? ((window.SpeechRecognition || window.webkitSpeechRecognition) as {
+            new (): SpeechRecognition;
+          })
+        : null;
+
+    // 2. Instanciation sécurisée avec vérification
     if (Recognition) {
       const recognition = new Recognition();
       recognition.lang = "fr-FR";
@@ -116,10 +108,9 @@ const Recognition = typeof window !== "undefined"
 
   // Démarrer la dictée continue pour le champ "notes"
   const startContinuousSpeechRecognition = () => {
-    // Vérifie si nous sommes dans un environnement client
-    if (typeof window === "undefined") return;
-
+    // Vérifie si nous sommes dans un environnement client et que le navigateur accepte la RV
     if (
+      typeof window === "undefined" ||
       !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
     ) {
       alert(
@@ -128,30 +119,46 @@ const Recognition = typeof window !== "undefined"
       return;
     }
 
+    // 1. Vérification d'environnement +
+    //  Assertion de type explicite : as { new(): SpeechRecognition } indique à TypeScript qu'il s'agit d'un constructeur
     const Recognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new Recognition();
+      typeof window !== "undefined"
+        ? ((window.SpeechRecognition || window.webkitSpeechRecognition) as {
+            new (): SpeechRecognition;
+          })
+        : null;
 
-    recognition.lang = "fr-FR";
-    recognition.continuous = true;
-    recognition.interimResults = true;
+    if (Recognition) {
+      const recognition = new Recognition();
+      recognition.lang = "fr-FR";
+      recognition.continuous = true;
+      recognition.interimResults = true;
 
-    recognition.onresult = (event) => {
-      const transcript = Array.from(event.results)
-        .map((result) => result[0].transcript)
-        .join("");
-      form.setValue("notes", transcript, { shouldValidate: true });
-    };
+      recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map((result) => result[0].transcript)
+          .join("");
+        form.setValue("notes", transcript, { shouldValidate: true });
+      };
 
-    recognition.onend = () => {
-      setIsVoiceListening(false);
-      setActiveField(null);
-    };
+      recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map((result) => result[0].transcript)
+          .join("");
+        form.setValue("notes", transcript, { shouldValidate: true });
+      };
 
-    recognition.start();
-    setIsVoiceListening(true);
-    setActiveField("notes");
-    setRecognitionInstance(recognition);
+      recognition.onend = () => {
+        setIsVoiceListening(false);
+        setActiveField(null);
+      };
+
+      recognition.start();
+
+      setIsVoiceListening(true);
+      setActiveField("notes");
+      setRecognitionInstance(recognition);
+    }
   };
 
   // Arrêter la reconnaissance vocale
