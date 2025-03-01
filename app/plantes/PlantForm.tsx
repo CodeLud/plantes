@@ -15,11 +15,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mic } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ensoleillement, mois_plantation } from "../_methodes/function";
 
+
 export default function PlantForm() {
+
   const form = useForm<plantFormData>({
     resolver: zodResolver(plantFormSchema),
     defaultValues: {
@@ -48,28 +50,36 @@ export default function PlantForm() {
   const [activeField, setActiveField] = useState<
     "nom" | "espece" | "famille" | "notes" | null
   >(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [isSpeechRecognitionSupported, setIsSpeechRecognitionSupported] = useState(false);
+
+  useEffect(() => {
+    setIsSpeechRecognitionSupported(
+      typeof window !== "undefined" &&
+        ("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
+    );
+  }, []);
 
   // Démarrer la reconnaissance vocale pour un champ spécifique
   const startSpeechRecognition = (field: "nom" | "espece" | "famille") => {
-    if (typeof window === "undefined") return; // Vérifie que nous sommes côté client
+    //if (typeof window === "undefined") return; // Vérifie que nous sommes côté client
 
-    if (
-      !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)
-    ) {
-      alert(
-        "La reconnaissance vocale n'est pas supportée par votre navigateur"
-      );
-      return;
-    }
+    if (typeof window === "undefined" ||
+      !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) return; 
 
     setActiveField(field);
     setIsVoiceListening(true);
 
-    // Utilise une assertion de type pour contourner l'erreur de TypeScript
-    const Recognition = (window.SpeechRecognition ||
-      window.webkitSpeechRecognition) as typeof SpeechRecognition;
+  
+// 1. Vérification d'environnement + 
+//  Assertion de type explicite : as { new(): SpeechRecognition } indique à TypeScript qu'il s'agit d'un constructeur
+const Recognition = typeof window !== "undefined" 
+  ? (window.SpeechRecognition || window.webkitSpeechRecognition) as { new(): SpeechRecognition } 
+  : null;
 
+  // 2. Instanciation sécurisée avec vérification
     if (Recognition) {
       const recognition = new Recognition();
       recognition.lang = "fr-FR";
@@ -577,5 +587,6 @@ export default function PlantForm() {
       </form>
     </Form>
   );
-  console.log("globalTypesLoaded:", (window as any).isGlobalTypesLoaded);
+  // Vérification dans le composant
+  //console.log("globalTypesLoaded:", isGlobalTypesLoaded);
 }
