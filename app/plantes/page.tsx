@@ -1,4 +1,4 @@
-// import { createPlante } from "@/actions/actions";
+/* // import { createPlante } from "@/actions/actions";
 import InsertPlant from "@/app/_components/form/insertPlant";
 import prisma from "@/lib/db";
 import Link from "next/link";
@@ -17,8 +17,9 @@ export default async function plantesPage() {
           </li>
         ))}
       </ul>
-      {/* Formulaire */}
+      
       <InsertPlant />
     </div>
   );
 }
+ */
