@@ -63,7 +63,12 @@ export default function PlantForm() {
   const startSpeechRecognition = (field: "nom" | "espece" | "famille") => {
    
     if (typeof window === "undefined" ||
-      !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) return; 
+      !("SpeechRecognition" in window || "webkitSpeechRecognition" in window)) {
+        alert(
+          "La reconnaissance vocale n'est pas supportée par votre navigateur"
+        );
+        return;
+      } 
 
     setActiveField(field);
     setIsVoiceListening(true);
